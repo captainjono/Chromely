@@ -103,4 +103,22 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
+  <Target Name="CopyCefComponentsToAppOutputDir" AfterTargets="Build">
+    <ItemGroup>
+      <MacCurrent Include="$(ProjectDir)packages/chromely.cef.83/**/*" />
+    </ItemGroup>
+    <ItemGroup>
+      <MacCurrentRes Include="$(ProjectDir)packages/chromely.cef.83/Chromium Embedded Framework.framework/Resources/**/*.*" />
+    </ItemGroup>
+    <ItemGroup>
+      <MacCurrentLib Include="$(ProjectDir)packages/chromely.cef.83/Chromium Embedded Framework.framework/Libraries/**/*.*" />
+    </ItemGroup>
+    <Unzip SourceFiles="$(ProjectDir)packages/chromely.cef.83/libcef.zip" DestinationFolder="$(TargetDir)/$(TargetName).app/Contents/MonoBundle/" OverwriteReadOnlyFiles="true" />
+    <Copy SourceFiles="@(MacCurrent)" DestinationFiles="@(MacCurrent-&gt;'$(TargetDir)$(TargetName).app/Contents/Frameworks/%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <Delete Files="$(TargetDir)/$(TargetName).app/Contents/Frameworks/Chromium Embedded Framework.framework/libcef.zip" />
+    <Copy SourceFiles="@(MacCurrent)" DestinationFolder="$(TargetDir)$(TargetName).app/Contents/MonoBundle/" SkipUnchangedFiles="true" />
+    <Delete Files="$(TargetDir)$(TargetName).app/Contents/MonoBundle/libcef.zip" />
+    <Copy SourceFiles="@(MacCurrentRes)" DestinationFolder="$(TargetDir)/$(TargetName).app/Contents/MonoBundle/" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(MacCurrentLib)" DestinationFolder="$(TargetDir)/$(TargetName).app/Contents/MonoBundle/" SkipUnchangedFiles="true" />
+  </Target>
 </Project>
