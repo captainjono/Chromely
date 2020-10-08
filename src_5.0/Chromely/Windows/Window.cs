@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using Chromely.CefGlue.Browser;
 using Chromely.CefGlue.Browser.EventParams;
 using Chromely.CefGlue.BrowserWindow;
@@ -23,6 +24,7 @@ namespace Chromely.Windows
         private IChromelyFramelessController _framelessController;
         private IntPtr _browserWindowHandle;
         private bool _isFramelessControllerInitialized = false;
+        public static Action<IWindow> _onCreated;
 
         public Window(IChromelyNativeHost nativeHost, IChromelyContainer container, IChromelyConfiguration config, IChromelyCommandTaskRunner commandTaskRunner, CefMessageRouterBrowserSide browserMessageRouter)
             : base(nativeHost, config)
@@ -134,6 +136,9 @@ namespace Chromely.Windows
 
                 ResizeBrowser(_browserWindowHandle);
             }
+            
+            Debug.WriteLine("Created browser window. calling plugin");
+            _onCreated?.Invoke(this);
         }
 
         private void OnFrameLoadStart(object sender, EventArgs e)
