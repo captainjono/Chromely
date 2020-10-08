@@ -1,0 +1,60 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30309.148
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chromely.XamMac", "Chromely.XamMac.csproj", "{5958B4B8-821D-44CF-BAD0-F6D72457A126}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chromely", "..\src_5.0\Chromely\Chromely.csproj", "{835F6B4A-BA18-4D2E-9F9B-81231EF90DBC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chromely.CefGlue", "..\src_5.0\Chromely.CefGlue\Chromely.CefGlue.csproj", "{23A4AEC5-32A3-425F-9FE8-280A43F4081F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chromely.Core", "..\src_5.0\Chromely.Core\Chromely.Core.csproj", "{A6FBCF3A-198A-4F4B-B4A6-20F3B6851ECB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		DebugLinux|Any CPU = DebugLinux|Any CPU
+		Release|Any CPU = Release|Any CPU
+		ReleaseLinux|Any CPU = ReleaseLinux|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5958B4B8-821D-44CF-BAD0-F6D72457A126}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5958B4B8-821D-44CF-BAD0-F6D72457A126}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5958B4B8-821D-44CF-BAD0-F6D72457A126}.DebugLinux|Any CPU.ActiveCfg = Debug|Any CPU
+		{5958B4B8-821D-44CF-BAD0-F6D72457A126}.DebugLinux|Any CPU.Build.0 = Debug|Any CPU
+		{5958B4B8-821D-44CF-BAD0-F6D72457A126}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5958B4B8-821D-44CF-BAD0-F6D72457A126}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5958B4B8-821D-44CF-BAD0-F6D72457A126}.ReleaseLinux|Any CPU.ActiveCfg = Release|Any CPU
+		{5958B4B8-821D-44CF-BAD0-F6D72457A126}.ReleaseLinux|Any CPU.Build.0 = Release|Any CPU
+		{835F6B4A-BA18-4D2E-9F9B-81231EF90DBC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{835F6B4A-BA18-4D2E-9F9B-81231EF90DBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{835F6B4A-BA18-4D2E-9F9B-81231EF90DBC}.DebugLinux|Any CPU.ActiveCfg = DebugLinux|Any CPU
+		{835F6B4A-BA18-4D2E-9F9B-81231EF90DBC}.DebugLinux|Any CPU.Build.0 = DebugLinux|Any CPU
+		{835F6B4A-BA18-4D2E-9F9B-81231EF90DBC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{835F6B4A-BA18-4D2E-9F9B-81231EF90DBC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{835F6B4A-BA18-4D2E-9F9B-81231EF90DBC}.ReleaseLinux|Any CPU.ActiveCfg = ReleaseLinux|Any CPU
+		{835F6B4A-BA18-4D2E-9F9B-81231EF90DBC}.ReleaseLinux|Any CPU.Build.0 = ReleaseLinux|Any CPU
+		{23A4AEC5-32A3-425F-9FE8-280A43F4081F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23A4AEC5-32A3-425F-9FE8-280A43F4081F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23A4AEC5-32A3-425F-9FE8-280A43F4081F}.DebugLinux|Any CPU.ActiveCfg = DebugLinux|Any CPU
+		{23A4AEC5-32A3-425F-9FE8-280A43F4081F}.DebugLinux|Any CPU.Build.0 = DebugLinux|Any CPU
+		{23A4AEC5-32A3-425F-9FE8-280A43F4081F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23A4AEC5-32A3-425F-9FE8-280A43F4081F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23A4AEC5-32A3-425F-9FE8-280A43F4081F}.ReleaseLinux|Any CPU.ActiveCfg = ReleaseLinux|Any CPU
+		{23A4AEC5-32A3-425F-9FE8-280A43F4081F}.ReleaseLinux|Any CPU.Build.0 = ReleaseLinux|Any CPU
+		{A6FBCF3A-198A-4F4B-B4A6-20F3B6851ECB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6FBCF3A-198A-4F4B-B4A6-20F3B6851ECB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6FBCF3A-198A-4F4B-B4A6-20F3B6851ECB}.DebugLinux|Any CPU.ActiveCfg = DebugLinux|Any CPU
+		{A6FBCF3A-198A-4F4B-B4A6-20F3B6851ECB}.DebugLinux|Any CPU.Build.0 = DebugLinux|Any CPU
+		{A6FBCF3A-198A-4F4B-B4A6-20F3B6851ECB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6FBCF3A-198A-4F4B-B4A6-20F3B6851ECB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6FBCF3A-198A-4F4B-B4A6-20F3B6851ECB}.ReleaseLinux|Any CPU.ActiveCfg = ReleaseLinux|Any CPU
+		{A6FBCF3A-198A-4F4B-B4A6-20F3B6851ECB}.ReleaseLinux|Any CPU.Build.0 = ReleaseLinux|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F6940E6F-20C5-44EA-AC59-6BEE782C60C9}
+	EndGlobalSection
+EndGlobal
