@@ -37,14 +37,7 @@ Enter [CefGlue](https://gitlab.com/xiliumhq/chromiumembedded/cefglue). It ran on
 
 A picture was starting to form in my head about what it will take to integrate CEF cross-platform... I had future goals of pushing the limits of code sharing, my ultimate goal being running the same code on *Windows/Mac/Andriod/MacOs*...?
 
-``` mermaid
-graph LR;
-Xam.Mac-->|Initialise|CEF
-CEF-. OpenGlSurface .->something???
-something???-. Window handle .->App
-App-. Style window .->something???
-CEF-. Create Sub-Process .->Xam.Mac
-``` 
+<img src="graph1.png">
 
 ### CEF on *Xamarin Mac*
 
@@ -58,17 +51,7 @@ So i started digging through all the resources i had found for a *working sample
 * It took the approach of creating a native window with `obj-c`, and then handing off to `CefGlue` with the bare essentials boostrapped.
 
 
-``` mermaid
-graph LR;
-Xam.Mac-->Chromely
-Chromely-->libchromely
-libchromely-->|Initialise|CEF
-CEF-. OpenGlSurface .->libchromely
-libchromely-. Window handle .->App
-App-. Style window .->libchromely
-CEF-. Create Sub-Process .->Xam.Mac
-``` 
-
+<img src="graph2.png">
 The challenges Chromely had solved were:
 * Working integration with *latest* CEF API
 * Implementation of CefClient on MacOS to boostrap CEF's process model
