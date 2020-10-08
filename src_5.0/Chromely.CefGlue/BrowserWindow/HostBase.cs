@@ -195,7 +195,8 @@ namespace Chromely.CefGlue.BrowserWindow
                 MultiThreadedMessageLoop = _config.Platform == ChromelyPlatform.Windows,
                 LogSeverity = CefLogSeverity.Info,
                 LogFile = "logs\\chromely.cef_" + DateTime.Now.ToString("yyyyMMdd") + ".log",
-                ResourcesDirPath = _config.AppExeLocation
+                ResourcesDirPath = _config.AppExeLocation,
+                CachePath = _config.CachePath
             };
 
             if (_config.WindowOptions.WindowFrameless || _config.WindowOptions.KioskMode)

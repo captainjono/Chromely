@@ -32,5 +32,7 @@ namespace Chromely.Core.Configuration
         List<UrlScheme> UrlSchemes { get; set; }
         CefDownloadOptions CefDownloadOptions { get; set; }
         IWindowOptions WindowOptions { get; set; }
+        string CachePath { get; set; }
+        string SubProcessPath { get; set; }
     }
 }

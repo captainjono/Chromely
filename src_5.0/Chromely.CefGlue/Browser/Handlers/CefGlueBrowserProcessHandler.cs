@@ -40,6 +40,24 @@ namespace Chromely.CefGlue.Browser.Handlers
             browser_cmd.AppendSwitch("disable-web-security");
             browser_cmd.AppendSwitch("ignore-certificate-errors");
 
+            browser_cmd.AppendSwitch("disable-gpu");
+
+            browser_cmd.AppendSwitch("disable-frame-rate-limit");
+            browser_cmd.AppendSwitch("disable-gpu-vsync");
+            browser_cmd.AppendSwitch("devtools-protocol-log-file", "cefdevtools.log");
+            browser_cmd.AppendSwitch("proxy-auto-detect");
+
+
+            if (!String.IsNullOrWhiteSpace(_config.SubProcessPath))
+            {
+                if (!browser_cmd.HasSwitch("cefglue"))
+                {
+                    browser_cmd.SetProgram(_config.SubProcessPath);
+
+                    browser_cmd.AppendSwitch("cefglue", "w");
+                }
+            }
+
             if (_config.DebuggingMode)
             {
                 Console.WriteLine("On CefGlue child process launch arguments:");

@@ -62,6 +62,14 @@ namespace Chromely.Core.Configuration
 
         /// <summary>Gets or sets the window options.</summary>
         public IWindowOptions WindowOptions { get; set; }
+        /// <summary>
+        /// The path used for the CEF cache. Can only be set on startup and the cache will be exclusively locked by this process while in use
+        /// </summary>
+        public string CachePath { get; set; }
+        /// <summary>
+        /// Sets the program used by CEF when spawning additional process .ie render, utility, helpers etc..
+        /// </summary>
+        public string SubProcessPath { get; set; }
 
         public DefaultConfiguration()
         {
