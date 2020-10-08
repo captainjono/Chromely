@@ -1,88 +1,160 @@
 <p align="center"><img src="https://github.com/chromelyapps/Chromely/blob/master/nugets/chromely.ico?raw=true" /></p>
-<h1 align="center">Chromely</h1>
+<h1 align="center">Chromely.XamMac</h1>
 
-Chromely is a lightweight alternative to <a href="https://github.com/ElectronNET/Electron.NET">Electron.NET</a>, <a href="https://github.com/electron/electron">Electron</a> for .NET/.NET Core developers.
+# Goal
 
-Chromely is a .NET/.NET Core HTML5 Chromium desktop framework. It is focused on building apps based on [Xilium.CefGlue](https://gitlab.com/xiliumhq/chromiumembedded/cefglue), [CefSharp](https://github.com/chromelyapps/CefSharp) implementations of  embedded Chromium ([CEF](https://bitbucket.org/chromiumembedded/cef)) **without WinForms or WPF**, but can be extended to use WinForms or WPF. Chromely uses **Windows**, **Linux** and **MacOS** native GUI API as "thin" chromium hosts.
+After trawling the internet for material on boostrapping CEF and Xamarin Mac, I came up with dead-ends on every turn. 
 
-With Chromely you can build Single Page Application (SPA) HTML5 desktop apps with or without Node/npm. Building SPA apps using Blazor or javascript frameworks like Angular, React, Vue or similar is easy. You can use Visual Studio Code or any IDE you are familiar with as long as Chromely knows the entry html file from the compiled/bundled files. For more info please see - [Blazor-Demos](https://github.com/chromelyapps/demo-projects/tree/master/blazor) and [Chromely-Apps](https://github.com/chromelyapps/demo-projects/tree/master/angular-react-vue).
+Some problems i encoutered were: 
+* Nothing worked with the multi-threaded message loop (CEF v75+) which is recommended approach to get Chrome-like performance.
+* Nothing gave developers a susccint understanding of what exactly *was required* to acheive the integration
 
-Options of communicating (IPC) with rendering process are via:
+Everything seemed possible, so i started down the rabbit hole and have come out the other side wanting to share my experience with the commuinity and make this task straight forward for those who come after me.
 
-- Generic Message Routing - more info @ [Generic Message Routing](https://github.com/chromelyapps/Chromely/blob/master/Documents/generic_message_routing.md).
-- Ajax HTTP/XHR -  more info @ [Custom Scheme Handling](https://github.com/chromelyapps/Chromely/blob/master/Documents/ajax_xhr_request_handling.md).
+My goal:
+* Integrating CEF with Xamarin MacoS in the lightest way possible
+* Use C# across the stack
+* Allow the application to customise the look and feel of the CEF window as if it was its own
+* Provide a nuget package that can be added to any Xamarin MacS Application, that bootstraps it for plug & play operation with CEF.
 
-##### If you like Chromely, please give it a star - it helps! #####
+## The CEF basics
 
-Have a quick question? Wanna chat? Connect on  [![Join the chat at https://gitter.im/chromely_/Lobby](https://badges.gitter.im/chromely_/Lobby.svg)](https://gitter.im/chromely_/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+* To run CEF, you need to integrate with its processing model on a platform it supports.
+* This means, you need to implement a CefClient that understands how to implement the CEF protocal
+* This client can be in any lanuage, but it must support the platform protocal (swizzel events etc)
+* By implementing this client, at runtime CEF will provide your App with a OpenGlView view will be used to paint browser onto any window/canvas/whatever your app requires
 
-Have an app/project/tool using Chromely - [please share!](https://github.com/chromelyapps/Chromely/issues/63)
+## The Journey
 
-### Platforms
-Cross-platform -**Windows**, **Linux**, **MacOS**. Built on CEF, CefGlue, NET Standard 2.0, .NET Core 3.0, .NET Framework 4.61 and above.
+My experience coming into this project was using [CEFSharp]() which uses a `C++ layer` to smooth out the CEF abstraction and make it *user friendly* with a drop-and-drag canvas. You dont need to worry about anything threading related, and they provide a great interface for quickly boostrapping your project. but.... they were never going to be [cross-platform](https://github.com/cefsharp/CefSharp/issues/1450).
 
-- Windows<sup>(1)</sup> 32-bit 
-- Windows<sup>(1)</sup> 64-bit 
-- Linux<sup>(2)</sup> 32-bit   
-- Linux<sup>(2)</sup> 64-bit   
-- MacOSX<sup>(3)</sup> 64-bit  
-- Linux ARM<sup>(4)</sup>  [Raspberry Pi](Documents/raspberrry_pi.md)      
+### *Cross platform* CEF
 
-&nbsp;<sup>(1)</sup>&nbsp; Windows 7, Service Pack 1 and newer    
-&nbsp;<sup>(2)</sup>&nbsp; Ubuntu 16.04 and newer    
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(Mono currently not working)    
-&nbsp;<sup>(3)</sup>&nbsp; Tested on macOS Mojave 10.14.6  (Other versions will likely work too)     
-&nbsp;<sup>(4)</sup>&nbsp; i.e. Raspberry Pi 3+   (starting with v5.x)    
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(for v4.x - manual download of CEF builds for ARM required,  available on http://chromely.org/cefbuilds/index.html) 
+Enter [CefGlue](https://gitlab.com/xiliumhq/chromiumembedded/cefglue). It ran on .NET Standard and i found [demo projects on integrating it with CEF ~v30-50 & MonoMac](https://www.magpcss.org/ceforum/viewtopic.php?f=14&t=14003). 
+* *These **all** relied on a single threaded messages loop* to work correctly. This option is now *deprecated* CEF.
+* They fell over on startup constantly. Something had changed between CEF versions, and i didnt know what..
+* This was the closest i got with to a running [CEF app on XamMac](https://github.com/VitalElement/CefGlue.Core/tree/master/CefGlue.Avalonia)
 
-[![Chromely.Core](http://img.shields.io/nuget/vpre/Chromely.Core.svg?style=flat&label=Chromely.Core)](https://www.nuget.org/packages/Chromely.Core)
-[![Chromely](http://img.shields.io/nuget/vpre/Chromely.svg?style=flat&label=Chromely)](https://www.nuget.org/packages/Chromely)
+A picture was starting to form in my head about what it will take to integrate CEF cross-platform... I had future goals of pushing the limits of code sharing, my ultimate goal being running the same code on *Windows/Mac/Andriod/MacOs*...?
 
-[![Chromely + Angular](https://img.shields.io/badge/Chromely%20Apps-Built%20with%20Angular%202%2B-green.svg)](https://github.com/chromelyapps/demo-projects/tree/master/angular-react-vue/ChromelyAngular)
-<br>[![Chromely + React](https://img.shields.io/badge/Chromely%20Apps-Built%20with%20React-green.svg)](https://github.com/chromelyapps/demo-projects/tree/master/angular-react-vue/ChromelyReact)
-<br>[![Chromely + Vue](https://img.shields.io/badge/Chromely%20Apps-Built%20with%20Vue-green.svg)](https://github.com/chromelyapps/demo-projects/tree/master/angular-react-vue/ChromelyVue) 
+``` mermaid
+graph LR;
+Xam.Mac-->|Initialise|CEF
+CEF-. OpenGlSurface .->something???
+something???-. Window handle .->App
+App-. Style window .->something???
+CEF-. Create Sub-Process .->Xam.Mac
+``` 
 
-### Creating a Simple App
-For more info see - [Getting Started](https://github.com/chromelyapps/Chromely/blob/master/Documents/getting_started.md) or [Wiki](https://github.com/chromelyapps/Chromely/wiki)
+### CEF on *Xamarin Mac*
 
-A basic Chromely project requires:
+By this stage I knew i needed to strap myself in and hold on for the ride. I needed to somehow mash all the peices of the puzzle into something that worked. I was experienced with Xamarin/Andriod/iOS but new to Xamarin Mac... new to the inner workings of CEF... and suddenly I was faced with the challenge of having to write a CefClient layer that talked the CEF protocal... My project deadline was nearing... Could i do it with XamMac? hmmmm!
 
-````csharp
-class Program
-{
-   [STAThread]
-   static void Main(string[] args)
-   {
-       AppBuilder
-       .Create()
-       .UseApp<ChromelyBasicApp>()
-       .Build()
-       .Run(args);
-    }
-}
-````
+## Saved by *Chromely*
 
-### Chromely Demos 
-Get started with our [demos](https://github.com/chromelyapps/demo-projects). 
-![](https://github.com/chromelyapps/Chromely/blob/master/Screenshots/chromely_screens_n3.gif)
+So i started digging through all the resources i had found for a *working sample *of a C#/Mono CefClient & CEFGlue... but again, *nothing worked* with the latest CEF API where the protocal had evolved... and then i found [Chromely]() & its [chromely_mac.mm]().
 
-### References
-* CEF - https://bitbucket.org/chromiumembedded/cef
-* Xilium.CefGlue - https://gitlab.com/xiliumhq/chromiumembedded/cefglue
+* I didnt know `Obj-C`, but i knew this worked with the *latest* CEF version so it implemented the protocal correctly
+* It took the approach of creating a native window with `obj-c`, and then handing off to `CefGlue` with the bare essentials boostrapped.
 
-Contributing
----
-Contributions are always welcome, via PRs, issues raised, or any other means. To become a dedicated contributor, please [contact the Chromely team](https://github.com/orgs/chromelyapps/people) or [raise an issue](https://github.com/chromelyapps/Chromely/issues) mentioning your intent.
 
-License
----
-Chromely is MIT licensed. For dependency licenses [please see](https://github.com/chromelyapps/Chromely/blob/master/LICENSE.md).
+``` mermaid
+graph LR;
+Xam.Mac-->Chromely
+Chromely-->libchromely
+libchromely-->|Initialise|CEF
+CEF-. OpenGlSurface .->libchromely
+libchromely-. Window handle .->App
+App-. Style window .->libchromely
+CEF-. Create Sub-Process .->Xam.Mac
+``` 
 
-Credits
----
-Thanks to [JetBrains](https://www.jetbrains.com) for the OSS license of Resharper Ultimate.
+The challenges Chromely had solved were:
+* Working integration with *latest* CEF API
+* Implementation of CefClient on MacOS to boostrap CEF's process model
+* Renaming *"Chromenimium Embedded Framework"* to *"libcef"* to solve the dreaded *"libcef not found"*
 
-Improved and optimized using:
+### Why rename CEF?
 
-<a href="https://www.jetbrains.com/resharper/
-"><img src="https://blog.jetbrains.com/wp-content/uploads/2014/04/logo_resharper.gif" alt="Resharper logo" width="100" /></a>
+This topic deserves a special callout. Over and over and over and over and over and.... over you will read doco on CEF / Xamarin / p/inokves and other topics of interop'ing. It will tell you `Place CEF next to your dll`. I saw many lost souls along the way aganonising over this fact. "*Why doesnt it detect CEF!? I followed the DOCS!*" they would say in desperate rants.
+
+* Your not going crazy. Apparently this is common knowledge to those old veterans of mono but if CEF is your first dip in the water, then may get lost too
+
+### I lied, *Chromely* was still crashing on startup
+
+Chromely got the furthest of any platform but was built for `.Net Core`, not `Xam.Mac`/`mono`. Whats the differences? They both implement .Net standard 2.0+? Why did it crash on startup? Time to deep dive on CEF
+
+* `Xam.Mac` runs on `mono` and is more mature then `.net core` which will morph into `.NET 5`. Fun fact [Eto]() maintains a fork of `Xam.Mac` to run on `.net core`.
+* I used `sudo opensnoop` to detect what `xam.mac` was trying todo during compile and what paths it was probing
+* I saw it was probing every dir BUT `frameworks` for a libary called `libcef` not `Chrominium Embedded Framework`
+* CEF is hardcoded to probde for `assets` on certain paths. Some assets it *needs* next to `libcef` some needed inside of `frameworks`
+
+The lessons i learn were:
+
+* CEF requires [assets](https://bitbucket.org/chromiumembedded/cef/issues/2737/macos-76-requires-multiple-helper-app) to be in certain folders.
+* CEF hardcodes these expectations like any other Mac app, renaming or [DllImports] dont effect *that*.
+* If you follow the required dir layout, placing CEF inside the `my.app/contents/frameworks` it will fail to detect!  
+* `libcef` needs to be placed inside of `my.app/contents/monobundle` for Xam.mac to detect it
+* Placing a copy of `libcef` in both `monobundle` & `frameworks` will result in a **STARTUP CRASH**! *why? no idea!* It just does!
+* You need to keep all the libcef/assets/resources ONLY in `frameworks` and then another copy of everything PLUS libcef inside of `monobundle`
+* *I personally thing this is a bug in Xamarin mac.* Xam.Mac should use `frameworks` as a probing path! 
+
+### but.... it still crashed on startup!
+
+This time though, I was getting different error codes. These were related to the [sub-process]() that CEF attempts to launch after it has `Initailised` (oh beleive me, after a week of watching CEF crash on startup over and over, that first time you initalise its *pure bliss*)
+
+Why did it crash?
+* Xamarin mac creates a `MacOS.app` that is natively executed but *lies at a different execution path* then the calling assembly
+* `CEFGlue` needs to be told about this so it sets CEF's `sub process path`. We set this `to the .app.` By default, it will call into the executing process... Which in Xam mac world, is not what we want (mono etc in the between)
+
+## The result
+
+I had to make a few mods here and there to get through this spike and to make this process streamlined for others. Ive collated all these `fixes` into this repository so [checkout the history]() to get more context.
+
+I hope this helps anyone who may follow in attempting to make CEF do something others havnt before. Hopefully my methodology to debugging will help you. 
+
+I plan on maintaining this fork going foward and/or integrating these changes back into Chromely and providing an nuget package to consume to allow that fabled, plug and play `CEF` integration into cross platform .net apps.
+
+This [nuget package]() will provide
+
+* All the hacks i just decribed to copy CEF and its assets to the *right dir*s, allows you to clean and rebuild with no delay in your flow
+* Distribute the [supported CEF runtime](http://opensource.spotify.com/cefbuilds/index.html) with the libary instead of having it as a seperate download. This has a MAJOR pain when ramping up on this project, its hard to understand all the version numbers and what depends on what! Clean and rebuild and** download** and **unzip** *is not fun.*
+* Supplies the *window handle* to your App so you can style it *using platform functions* if you wish
+* Implements the .MessageBox dialogs to allow cross-platform message boxes via Chromelys APIs (using Xamarin Mac APIs)
+
+## But i have a problem!
+
+This repo *successfully(!!)* boostraps CEF with Chromely. It will show you a browser window and you can use Chromelys API as usual. You can also use Xamarin to style the Window that Chromely mediates with CEF.... 
+
+But *it will crash* when you try and *shut it down*. 
+
+I am actively working on this and another issue: 
+
+### Shutdown crash
+* [CEF has a very particular API for shutdown](https://magpcss.org/ceforum/apidocs3/projects/(default)/CefLifeSpanHandler.html), like it does for init.
+  * You must close the browser before exiting your App
+  * You must wait for the browser to go through its shutdown process and cleanup its resources
+    * This could take 100ms~ of its MessagePump do its thing
+    * You need then, only after all browser handles/resources have been released by your app, call `CefRunetime.Shutdown()`
+    * Then it is safe for you to Exit your app
+    * 
+My implementation so far does not comply and is exiting the messageloop before the browser close sequence completes.
+
+## Release mode crash
+
+CEF will fail to init when you switch compliation options to *Release mode*.
+* I think this may be related to Notorisation the app
+
+If anyone is able to help out diagnosing or debugging these issues, I would really appreciate the help. PRs welcome. 
+
+Cloning and running the `buildAndRunXamMacDemoApp.ps1` will demo the crashing issue.
+
+## Parting words
+
+I hope the information I have presented helps you launch your CEF project. Cross-platform rocks, and I am actively working on updating another project of mine, [Reactions](https://github.com/captainjono/rxns) to be *plug / play* & dependency free with .NET5!
+
+# About me
+
+In the world of tomorrow, the expectation is that your code will run on any device. I love open source. I love the possibilities of cross-platform. Ive been devv'ing since JDK 1.1 and moved to .NET @ 2.0. After building Java, Silverlight, Xamarin, Angular/React/TS/Progressive Apps/Services I found myself doing the same things over and over again.
+
+I want to use that experience to help your code run on any device using the patterns that are portable to produce apps which are reliable, scalable, and maintainable over the *well after the hype cycle fades*
