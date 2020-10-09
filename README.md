@@ -21,12 +21,12 @@ My goal:
 
 * To run CEF, you need to integrate with its processing model on a platform it supports.
 * This means, you need to implement a CefClient that understands how to implement the CEF protocal
-* This client can be in any lanuage, but it must support the platform protocal (swizzel events etc)
-* By implementing this client, at runtime CEF will provide your App with a OpenGlView view will be used to paint browser onto any window/canvas/whatever your app requires
+* This client can be in any lanuage, but it must support the platform protocal (*swizzel events etc*)
+* By implementing this client, at runtime CEF will provide your App with a OpenGlView window/view which is the browser and u can paint into various surfaces
 
 ## The Journey
 
-My experience coming into this project was using [CEFSharp]() which uses a `C++ layer` to smooth out the CEF abstraction and make it *user friendly* with a drop-and-drag canvas. You dont need to worry about anything threading related, and they provide a great interface for quickly boostrapping your project. but.... they were never going to be [cross-platform](https://github.com/cefsharp/CefSharp/issues/1450).
+My experience coming into this project was using [CEFSharp]() which uses a `C++ layer` to smooth out the CEF abstraction and make it *user friendly* with a *drop-and-drag canvas*. You dont need to worry about anything threading related, and they provide a great interface for quickly boostrapping your project. but.... they were never going to be [cross-platform](https://github.com/cefsharp/CefSharp/issues/1450).
 
 ### *Cross platform* CEF
 
@@ -35,13 +35,13 @@ Enter [CefGlue](https://gitlab.com/xiliumhq/chromiumembedded/cefglue). It ran on
 * They fell over on startup constantly. Something had changed between CEF versions, and i didnt know what..
 * This was the closest i got with to a running [CEF app on XamMac](https://github.com/VitalElement/CefGlue.Core/tree/master/CefGlue.Avalonia)
 
-A picture was starting to form in my head about what it will take to integrate CEF cross-platform... I had future goals of pushing the limits of code sharing, my ultimate goal being running the same code on *Windows/Mac/Andriod/MacOs*...?
+A picture was starting to form in my head about what it will take to integrate CEF cross-platform... I had future goals of pushing the limits of code sharing, my ultimate goal being running the same code on *Windows/Mac/Andriod/Linux/MacOs*...?
 
 <img src="graph1.png">
 
 ### CEF on *Xamarin Mac*
 
-By this stage I knew i needed to strap myself in and hold on for the ride. I needed to somehow mash all the peices of the puzzle into something that worked. I was experienced with Xamarin/Andriod/iOS but new to Xamarin Mac... new to the inner workings of CEF... and suddenly I was faced with the challenge of having to write a CefClient layer that talked the CEF protocal... My project deadline was nearing... Could i do it with XamMac? hmmmm!
+By this stage I knew i needed to strap myself in and hold on for the ride. I needed to somehow mash all the peices of the puzzle into something that worked. I was experienced with Xamarin/Andriod/iOS but *new to* Xamarin Mac... MacOS... and also new to the inner workings of CEF... and suddenly I was faced with the challenge of having to write a CefClient layer that talked the CEF protocal... My project deadline was nearing... Could i do it with XamMac? hmmmm!
 
 ## Saved by *Chromely*
 
@@ -70,40 +70,40 @@ Chromely got the furthest of any platform but was built for `.Net Core`, not `Xa
 * `Xam.Mac` runs on `mono` and is more mature then `.net core` which will morph into `.NET 5`. Fun fact [Eto]() maintains a fork of `Xam.Mac` to run on `.net core`.
 * I used `sudo opensnoop` to detect what `xam.mac` was trying todo during compile and what paths it was probing
 * I saw it was probing every dir BUT `frameworks` for a libary called `libcef` not `Chrominium Embedded Framework`
-* CEF is hardcoded to probde for `assets` on certain paths. Some assets it *needs* next to `libcef` some needed inside of `frameworks`
+* CEF is hardcoded to probe for `assets` on certain paths. Some assets it *needs* next to `libcef` some needed inside of `frameworks`
 
-The lessons i learn were:
+The lessons i learnt were:
 
 * CEF requires [assets](https://bitbucket.org/chromiumembedded/cef/issues/2737/macos-76-requires-multiple-helper-app) to be in certain folders.
-* CEF hardcodes these expectations like any other Mac app, renaming or [DllImports] dont effect *that*.
+* CEF hardcodes these expectations like *any other* Mac app, renaming or [DllImports] dont effect *that*.
 * If you follow the required dir layout, placing CEF inside the `my.app/contents/frameworks` it will fail to detect!  
-* `libcef` needs to be placed inside of `my.app/contents/monobundle` for Xam.mac to detect it
-* Placing a copy of `libcef` in both `monobundle` & `frameworks` will result in a **STARTUP CRASH**! *why? no idea!* It just does!
-* You need to keep all the libcef/assets/resources ONLY in `frameworks` and then another copy of everything PLUS libcef inside of `monobundle`
-* *I personally thing this is a bug in Xamarin mac.* Xam.Mac should use `frameworks` as a probing path! 
+* `libcef` needs to be placed inside of `my.app/contents/monobundle` for Xam.mac to detect it *There are other folders also but its safest here as thats what most others do*
+* Placing a copy of `libcef` in both `monobundle` & `frameworks` will result in a **STARTUP CRASH**! *why? no idea!* *It just does!*
+* You need to keep all the *libcef/assets/resources* **ONLY** in `frameworks` and then another copy of everything PLUS libcef inside of `monobundle`
+  * *I personally think this is a bug in Xamarin mac.* Xam.Mac should use `frameworks` as a probing path!?!
 
 ### but.... it still crashed on startup!
 
-This time though, I was getting different error codes. These were related to the [sub-process]() that CEF attempts to launch after it has `Initailised` (oh beleive me, after a week of watching CEF crash on startup over and over, that first time you initalise its *pure bliss*)
+This time though, I was getting different error codes. These were related to the GPU [sub-processes]() that CEF attempts to launch after it has `Initailised` (...and *beleive me*, after a week of watching CEF crash on startup over and over, that first time you initalise its *pure bliss*)
 
 Why did it crash?
 * Xamarin mac creates a `MacOS.app` that is natively executed but *lies at a different execution path* then the calling assembly
-* `CEFGlue` needs to be told about this so it sets CEF's `sub process path`. We set this `to the .app.` By default, it will call into the executing process... Which in Xam mac world, is not what we want (mono etc in the between)
+* `CEFGlue` needs to be told about this so it sets CEF's `sub process path`. We set this `to the .app.`. By default, it will call into the executing process... Which in Xam mac world, is not what we want (mono etc in the between)
 
 ## The result
 
-I had to make a few mods here and there to get through this spike and to make this process streamlined for others. Ive collated all these `fixes` into this repository so [checkout the history]() to get more context.
+I had to make a few quick hacks *here and there *to get through this spike and to make this process streamlined for others. Ive collated all these `fixes` into this repository so [checkout the history]() to get more context.
 
-I hope this helps anyone who may follow in attempting to make CEF do something others havnt before. Hopefully my methodology to debugging will help you. 
+I hope this helps anyone who may follow in attempting to make CEF do something others havnt before. Hopefully my methodology to debugging will help you also.
 
-I plan on maintaining this fork going foward and/or integrating these changes back into Chromely and providing an nuget package to consume to allow that fabled, plug and play `CEF` integration into cross platform .net apps.
+I plan on maintaining this fork going foward and/or integrating these changes back into Chromely and providing an nuget package to consume to faciliate  that fabled - plug and play `CEF` integration - in *any* cross platform .net app.
 
-This [nuget package]() will provide
+This [nuget package]() ***will*** provide
 
-* All the hacks i just decribed to copy CEF and its assets to the *right dir*s, allows you to clean and rebuild with no delay in your flow
-* Distribute the [supported CEF runtime](http://opensource.spotify.com/cefbuilds/index.html) with the libary instead of having it as a seperate download. This has a MAJOR pain when ramping up on this project, its hard to understand all the version numbers and what depends on what! Clean and rebuild and** download** and **unzip** *is not fun.*
+* All the hacks i just decribed to copy CEF and its assets to the *right dir*s, allows you to clean and rebuild with no delay in your flow.
+* Distribute the [supported CEF runtime](http://opensource.spotify.com/cefbuilds/index.html) with the libary instead of having it as a seperate download. This has a MAJOR pain when ramping up on CEF, its hard to understand all the version numbers and what depends on what! Clean and rebuild and** download** and **unzip** *is not fun.*
 * Supplies the *window handle* to your App so you can style it *using platform functions* if you wish
-* Implements the .MessageBox dialogs to allow cross-platform message boxes via Chromelys APIs (using Xamarin Mac APIs)
+* Implements the Chromely NativeHost `.MessageBox` dialogs to allow cross-platform message boxes via Chromelys APIs (using Xamarin / .Net MUAIs APIs)
 
 ## But i have a problem!
 
@@ -120,8 +120,12 @@ I am actively working on this and another issue:
     * This could take 100ms~ of its MessagePump do its thing
     * You need then, only after all browser handles/resources have been released by your app, call `CefRunetime.Shutdown()`
     * Then it is safe for you to Exit your app
-    * 
-My implementation so far does not comply and is exiting the messageloop before the browser close sequence completes.
+  
+My implementation so far does not comply and CEF crashes the App because it is holding a browser reference at shutdown
+
+<img src="cef_shutdown_error.png">
+
+Cloning and running via [VS Community]() + [Xamarin MacoS]() workload installed will demo the crashing issue as soon after you *click the cross to exit the app*.
 
 ## Release mode crash
 
@@ -129,8 +133,6 @@ CEF will fail to init when you switch compliation options to *Release mode*.
 * I think this may be related to Notorisation the app
 
 If anyone is able to help out diagnosing or debugging these issues, I would really appreciate the help. PRs welcome. 
-
-Cloning and running the `buildAndRunXamMacDemoApp.ps1` will demo the crashing issue.
 
 ## Parting words
 
