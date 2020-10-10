@@ -2,14 +2,23 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
+using AppKit;
 using Caliburn.Light;
+using Chromely.CefGlue.Browser.Handlers;
+using Chromely.CefGlue.BrowserWindow;
 using Chromely.Core;
 using Chromely.Core.Configuration;
 using Chromely.Core.Host;
 using Chromely.Core.Infrastructure;
 using Chromely.Core.Logging;
 using Chromely.Core.Network;
+using Chromely.Native;
 using Chromely.Windows;
+using CoreFoundation;
+using Foundation;
+using Xilium.CefGlue;
 
 namespace Chromely.XamMac
 {
@@ -17,6 +26,46 @@ namespace Chromely.XamMac
     {
         static void Main(string[] args)
         {
+            NSTimer timer = null;
+            var tt = new TaskCompletionSource<bool>();
+
+            //attempting to use an external message pump
+            MacCocoaHost.onRun = async () => {
+
+                NSApplication.Init();
+
+                
+                timer = NSTimer.CreateRepeatingTimer(0.003, _ =>
+                {
+                    DispatchQueue.MainQueue.DispatchAsync(() => CefRuntime.DoMessageLoopWork());
+                });
+
+                NSRunLoop.Main.AddTimer(timer, NSRunLoopMode.Default);
+
+                var done = false;
+                do
+                {
+                   // Start the run loop but return after each source is handled.
+                    var result = CFRunLoop.Main.RunInMode(CFRunLoop.ModeDefault, 100, true);// CFRunLoopRunInMode(kCFRunLoopDefaultMode, 10, YES);
+                    
+                    //have not handled the invalidate signal yet
+                    if ((result == CFRunLoopExitReason.Finished))
+                    {
+                        done = true;
+                    }
+                }
+                while (!done);
+                Debug.WriteLine("Exiting external message pump");
+
+            };
+            CefGlueBrowserProcessHandler.OnShcuedlerWork = (delayMs) =>
+            {
+                DispatchQueue.MainQueue.DispatchAfter(new DispatchTime((ulong) delayMs * 100000), () =>
+                {
+                    CefRuntime.DoMessageLoopWork();
+                });
+            };
+
             var config = new DemoAppCfg()
             {
                 DebuggingMode = true,
@@ -45,19 +94,36 @@ namespace Chromely.XamMac
                 CommandLineArgs = new Dictionary<string, string>()
                 {
                     ["cefLogFile"] = "chromely.cef.log",
-                    ["logSeverity"] = "verbose"
+                    ["logSeverity"] = "verbose",
+                    ["external-message-pump"] = true.ToString()
                 },
-                CommandLineOptions = new List<string>(new[] { "disable-web-security" })
+                CommandLineOptions = new List<string>(new[] { "disable-web-security"})
             };
 
             Chromely.Windows.Window._onCreated = cWindow =>
             {
-                //the window handle
-                //var xamMacWindow = FromNativeHandle(cWindow.HostHandle);
+                //allow xam-mac to run
+                //need to NSApplication.Init(); here, not before CEF has loaded
+                //var mainWin = ObjCRuntime.Runtime.GetNSObject<NSWindow>(cWindow.HostHandle, false);
+
+                //Use CEF's UI scheduler to update UI
+                CefRuntime.PostTask(CefThreadId.UI, new HostBase.ActionTask(() =>
+                {
+                    Debug.WriteLine("Disposing of Chromely Window");
+                    
+                    cWindow.Dispose();
+                    //CefRuntime.QuitMessageLoop();
+
+                    CefRuntime.PostTask(CefThreadId.UI, new HostBase.ActionTask(() =>
+                    {
+                        Debug.WriteLine("QuiteMessageLoop being called");
+                        CefRuntime.QuitMessageLoop();
+                    }), 1000 * 10);
+                }), 1000 * 8);
             };
 
             var chromelyContainer = new SimpleContainer();
-            chromelyContainer.RegisterByTypeSingleton(typeof(IChromelyWindow), typeof(DemoWindow));
+            chromelyContainer.RegisterByTypeSingleton(typeof(IChromelyWindow),  typeof(DemoWindow));
 
             AppBuilder.Create()
                 .UseApp<DemoApp>()
@@ -66,24 +132,6 @@ namespace Chromely.XamMac
                 .UseLogger<DebugLogger>()
                 .Build()
                 .Run(args);
-        }
-
-        public NSWindow FromNativeHandle(IWindow nativeHost)
-        {
-            Debug.WriteLine("Attempting to lookup Chromly native window");
-
-            var nativeHandle = nativeHost.HostHandle;
-            var mainWin = _mainWindow = ObjCRuntime.Runtime.GetNSObject<NSWindow>(nativeHandle, false);
-
-            $"Found Chromely Native Window @ {nativeHandle}".LogDebug("Replay");
-
-            //CefRuntime.PostTask( 
-            MainWindow.TitlebarAppearsTransparent = true;
-
-                
-            
-
-            return mainWin;
         }
 
 

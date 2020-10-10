@@ -32,6 +32,8 @@ namespace Chromely.Native
         private IntPtr _viewHandle;
         private bool _isInitialized;
 
+        public static Action onRun;
+
         public MacCocoaHost()
         {
             _appHandle = IntPtr.Zero;
@@ -126,7 +128,10 @@ namespace Chromely.Native
 
         protected virtual void RunCallback()
         {
-            CefRuntime.RunMessageLoop();
+            if (onRun != null)
+                onRun();
+            else
+                CefRuntime.RunMessageLoop();
         }
 
         protected virtual void ShutdownCallback()

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading;
 using Chromely.CefGlue.Browser;
 using Chromely.CefGlue.Browser.EventParams;
 using Chromely.CefGlue.BrowserWindow;
@@ -73,12 +74,20 @@ namespace Chromely.Windows
             {
                 if (Browser != null)
                 {
+                    Debug.WriteLine("Telling browser to close");
+                    
+                    //https://github.com/cefsharp/cefsharp/issues/3047
+                    //recent CEfSharp issue which tackles the same problem
+
                     // A hack - until fix is found for why OnBeforeClose is not called in CefGlueLifeHandler.cs
                     Browser?.OnBeforeClose();
 
                     Browser?.Dispose();
+
+                    Thread.Sleep(500);
                     Browser = null;
                     _browserWindowHandle = IntPtr.Zero;
+                    //Exit();
                 }
             }
             catch (Exception exception)
@@ -124,6 +133,8 @@ namespace Chromely.Windows
 
         protected override void OnClose(object sender, CloseEventArgs closeChangedEventArgs)
         {
+            Debug.WriteLine("Window Onclose called");
+
             Dispose();
             Core.Infrastructure.ChromelyAppUser.App.Properties.Save(_config);
         }

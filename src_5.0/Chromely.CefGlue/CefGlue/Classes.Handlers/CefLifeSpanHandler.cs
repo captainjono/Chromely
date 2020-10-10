@@ -103,6 +103,7 @@
 
         private int do_close(cef_life_span_handler_t* self, cef_browser_t* browser)
         {
+            Debug.WriteLine("DCefLifeSpanHandler doClose being called");
             CheckSelf(self);
 
             var m_browser = CefBrowser.FromNative(browser);

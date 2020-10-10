@@ -7,6 +7,7 @@
 // </license>
 // ----------------------------------------------------------------------------------------------------------------------
 
+using System.Diagnostics;
 using Chromely.CefGlue.Browser.EventParams;
 using Chromely.Core.Configuration;
 using Chromely.Core.Infrastructure;
@@ -40,17 +41,29 @@ namespace Chromely.CefGlue.Browser.Handlers
         protected override void OnAfterCreated(CefBrowser browser)
         {
             base.OnAfterCreated(browser);
-            _browser.InvokeAsyncIfPossible(() => _browser.OnBrowserAfterCreated(browser));
+            _browser.InvokeAsyncIfPossible(() =>
+            {
+                Debug.WriteLine("CefGlueLifeSpanHandler async AfterCreated");
+
+                _browser.OnBrowserAfterCreated(browser);
+            });
         }
 
         protected override bool DoClose(CefBrowser browser)
         {
-            return false;
+            return true;
         }
 
         protected override void OnBeforeClose(CefBrowser browser)
         {
-            _browser.InvokeAsyncIfPossible(() => _browser.OnBeforeClose());
+            Debug.WriteLine("CefGlueLifeSpanHandler OnBeforeClose");
+            _browser.OnBeforeClose();
+
+            _browser.InvokeAsyncIfPossible(() =>
+            {
+                Debug.WriteLine("CefGlueLifeSpanHandler async calling close");
+
+            });
         }
 
         protected override bool OnBeforePopup(CefBrowser browser, CefFrame frame, string targetUrl, string targetFrameName, CefWindowOpenDisposition targetDisposition, bool userGesture, CefPopupFeatures popupFeatures, CefWindowInfo windowInfo, ref CefClient client, CefBrowserSettings settings, ref CefDictionaryValue extraInfo, ref bool noJavascriptAccess)

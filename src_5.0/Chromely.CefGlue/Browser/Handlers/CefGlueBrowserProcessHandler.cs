@@ -46,6 +46,7 @@ namespace Chromely.CefGlue.Browser.Handlers
             browser_cmd.AppendSwitch("disable-gpu-vsync");
             browser_cmd.AppendSwitch("devtools-protocol-log-file", "cefdevtools.log");
             browser_cmd.AppendSwitch("proxy-auto-detect");
+            browser_cmd.AppendSwitch("external-message-pump");
 
 
             if (!String.IsNullOrWhiteSpace(_config.SubProcessPath))
@@ -64,5 +65,15 @@ namespace Chromely.CefGlue.Browser.Handlers
                 Console.WriteLine(browser_cmd.ToString());
             }
         }
+
+        protected override void OnScheduleMessagePumpWork(long delayMs)
+        {
+            OnShcuedlerWork(delayMs);
+        }
+
+        public static Action<long> OnShcuedlerWork;
+
     }
+
+
 }
