@@ -21,6 +21,7 @@ typedef void (*OnCreateCallback)(void *window, void *view);
 typedef void (*OnMovingCallback)();
 typedef void (*OnResizeCallback)(int width, int height);
 typedef void (*OnExitCallback)();
+typedef void (*OnLogCallback)(int msg);
 
 typedef struct APPDATA APPDATA;
 typedef struct CHROMELYPARAM CHROMELYPARAM;
@@ -49,7 +50,9 @@ struct CHROMELYPARAM {
     OnMovingCallback movingCallback;
     OnResizeCallback resizeCallback;
     OnExitCallback exitCallback;
+    OnLogCallback logCallback;
 };
+
 
 /*
 * Exported methods

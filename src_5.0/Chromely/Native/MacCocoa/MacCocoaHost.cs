@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Threading;
+using Chromely.CefGlue.BrowserWindow;
 using Chromely.Core.Configuration;
 using Chromely.Core.Host;
 using Chromely.Core.Logging;
@@ -23,6 +25,7 @@ namespace Chromely.Native
         private delegate void MovingCallbackEvent();
         private delegate void ResizeCallbackEvent(int width, int height);
         private delegate void QuitCallbackEvent();
+        private delegate void LogCallbackEvent(int msg);
 
         private ChromelyParam _configParam;
         private IWindowOptions _options;
@@ -53,7 +56,9 @@ namespace Chromely.Native
                                                     CreateCallback,
                                                     MovingCallback,
                                                     ResizeCallback,
-                                                    QuitCallback);
+                                                    LogCallback,
+                                                    QuitCallback
+            );
 
 
             _configParam.centerscreen = _options.WindowState == WindowState.Normal && _options.StartCentered ? 1 : 0;
@@ -136,6 +141,11 @@ namespace Chromely.Native
 
         protected virtual void ShutdownCallback()
         {
+            _viewHandle = IntPtr.Zero;
+            _windowHandle = IntPtr.Zero;
+
+            Logger.Instance.Log.Info("CEF ShutdownCallback");
+            Thread.Sleep(2000);
             CefRuntime.Shutdown();
         }
 
@@ -175,9 +185,22 @@ namespace Chromely.Native
         {
             try
             {
-                CefRuntime.Shutdown();
+                Logger.Instance.Log.Info("CEF TERMINATE - quit callback");
+                Thread.Sleep(500);
+                //CefRuntime.Shutdown();
                 Close?.Invoke(this, new CloseEventArgs());
                 Environment.Exit(0);
+            }
+            catch (Exception exception)
+            {
+            }
+        }
+
+        protected virtual void LogCallback(int msg)
+        {
+            try
+            {
+                Logger.Instance.Log.Info($"FROM libchromely {msg}");
             }
             catch (Exception exception)
             {
@@ -193,6 +216,7 @@ namespace Chromely.Native
                                                     CreateCallbackEvent createCallback,
                                                     MovingCallbackEvent movingCallback,
                                                     ResizeCallbackEvent resizeCallback,
+                                                    LogCallbackEvent logCallback,
                                                     QuitCallbackEvent quitCallback)
         {
 
@@ -204,6 +228,7 @@ namespace Chromely.Native
             configParam.movingCallback = Marshal.GetFunctionPointerForDelegate(movingCallback);
             configParam.resizeCallback = Marshal.GetFunctionPointerForDelegate(resizeCallback);
             configParam.exitCallback = Marshal.GetFunctionPointerForDelegate(quitCallback);
+            configParam.logCallback = Marshal.GetFunctionPointerForDelegate(logCallback);
 
             return configParam;
         }

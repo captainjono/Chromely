@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Reflection;
-using System.Threading;
 using Chromely.CefGlue.Browser.EventParams;
 using Chromely.Core;
 using Chromely.Core.Configuration;
@@ -194,12 +193,16 @@ namespace Chromely.CefGlue.Browser
 
                     var host = CefBrowser.GetHost();
                     host.CloseBrowser(true);
-                    host.Dispose();
-                    Thread.Sleep(500);
-                    
+
                     //https://magpcss.org/ceforum/viewtopic.php?f=14&t=17692
-                    //CefBrowser.Dispose();
-                   //CefBrowser = null;
+                    CefBrowser.Dispose();
+                    host.Dispose();
+                    CefBrowser = null;
+
+                    Debug.WriteLine("calling CefGlueBrowser OnBeforeClosed explicitly");
+
+                    BeforeClose?.Invoke(this, null);
+
                 }
                 else
                 {
@@ -215,13 +218,13 @@ namespace Chromely.CefGlue.Browser
         /// </summary>
         public void OnBeforeClose()
         {
-            Debug.WriteLine("CefGlueBrowser OnBeforeClosed!!!!!!");
+            Debug.WriteLine("CefGlueBrowser OnBeforeClosed");
 
-            CefBrowser.Dispose();
-            CefBrowser = null;
+           // CefBrowser.Dispose();
+          //  CefBrowser = null;
 
-            BeforeClose?.Invoke(this, null);
-            Debug.WriteLine("CefBrowser disposed");
+          //  BeforeClose?.Invoke(this, null);
+           // Debug.WriteLine("CefBrowser disposed");
         }
 
 

@@ -301,6 +301,7 @@
         /// </summary>
         public void OnBeforeClose(CefBrowser browser)
         {
+            Debug.WriteLine("ONBEFORECLOSE MSGROUTER");
             CancelPendingFor(browser, null, false);
         }
 

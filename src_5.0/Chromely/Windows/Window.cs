@@ -80,13 +80,13 @@ namespace Chromely.Windows
                     //recent CEfSharp issue which tackles the same problem
 
                     // A hack - until fix is found for why OnBeforeClose is not called in CefGlueLifeHandler.cs
-                    Browser?.OnBeforeClose();
+                    //Browser?.OnBeforeClose();
 
                     Browser?.Dispose();
 
-                    Thread.Sleep(500);
+                   // Thread.Sleep(500);
                     Browser = null;
-                    _browserWindowHandle = IntPtr.Zero;
+                    //_browserWindowHandle = IntPtr.Zero;
                     //Exit();
                 }
             }

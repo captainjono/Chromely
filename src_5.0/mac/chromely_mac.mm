@@ -134,17 +134,19 @@ namespace {
 // sequence by getting rid of the window. By returning YES, we allow the window
 // to be removed from the screen.
 - (BOOL)windowShouldClose:(NSWindow*)window {
+    chromelyParam_.logCallback(7);
+
   if (!force_close_) {
         /// CHROMELYPARAM- function pointer?
     }
 
   // Don't want any more delegate callbacks after we destroy ourselves.
-  window_.delegate = nil;
+  //window_.delegate = nil;
   // Delete the window.
-#if !__has_feature(objc_arc)
-  [window autorelease];
-#endif  // !__has_feature(objc_arc)
-  window_ = nil;
+//#if !__has_feature(objc_arc)
+  //[window autorelease];
+//#endif  // !__has_feature(objc_arc)
+  //window_ = nil;
 
   // Clean ourselves up after clearing the stack of anything that might have the
   // window on it.
@@ -156,17 +158,26 @@ namespace {
 
 // Deletes itself.
 - (void)cleanup {
+    chromelyParam_.logCallback(3);    
+
   // Don't want any more delegate callbacks after we destroy ourselves.
   window_.delegate = nil;
   window_.contentView = [[NSView alloc] initWithFrame:NSZeroRect];
+  chromelyParam_.logCallback(4);    
+
   // Delete the window.
 #if !__has_feature(objc_arc)
   [window_ autorelease];
+  chromelyParam_.logCallback(5);    
+
 #endif  // !__has_feature(objc_arc)
   window_ = nil;
  /// root_window_->OnNativeWindowClosed(); -     /// CHROMELYPARAM- function pointer?
 
+
   chromelyParam_.exitCallback();
+  chromelyParam_.logCallback(6);    
+
 }
 
 @end  // @implementation RootWindowDelegate
@@ -259,7 +270,11 @@ namespace {
                                                   andParams:chromelyParam_];
 
     cefParentView_ = [window_ contentView];
+    chromelyParam_.logCallback(0);
+
     chromelyParam_.createCallback(window_, cefParentView_);
+
+    chromelyParam_.logCallback(1);
 
     if (chromelyParam_.centerscreen == 1)
         [window_ center];
@@ -283,6 +298,8 @@ namespace {
 }
 
 - (NSUInteger)windowCustomStyle {
+    chromelyParam_.logCallback(-1);
+
     if (chromelyParam_.fullscreen == 1)
         return NSWindowStyleMaskFullScreen;
 
@@ -310,7 +327,9 @@ namespace {
 } 
 
 - (void)tryToTerminateApplication:(NSApplication*)app {
-    chromelyParam_.exitCallback();
+    chromelyParam_.logCallback(6);
+    
+    chromelyParam_.exitCallback();    
 }
 
 - (NSApplicationTerminateReply)applicationShouldTerminate:
@@ -319,7 +338,14 @@ namespace {
 }
 
 - (void)dealloc {
-    [cefParentView_ release];
+    chromelyParam_.logCallback(10);
+
+    [cefParentView_ setSubviews:[NSArray array]];
+    //[cefParentView_ makeObjectsPerformSelector: @selector(removeFromSuperview)];
+
+    window_.delegate = nil;
+    window_.contentView = [[NSView alloc] initWithFrame:NSZeroRect];
+   // [cefParentView_ release];
 
     // Delete the window.
     #if !__has_feature(objc_arc)
@@ -330,6 +356,7 @@ namespace {
     [super dealloc];
 
     chromelyParam_.exitCallback();
+    chromelyParam_.logCallback(12);
 }
 
 @end
@@ -355,9 +382,10 @@ void createwindow(CHROMELYPARAM* pParam) {
         // Run the CEF message loop. This will block until CefQuitMessageLoop() is
         // called.
         pParam->runMessageLoopCallback();
-
+        pParam->logCallback(8);
         // Shut down CEF.
         pParam->cefShutdownCallback();
+        pParam->logCallback(9);
 
         // Release the delegate.
         #if !__has_feature(objc_arc)
@@ -374,7 +402,6 @@ APPDATA createwindowdata(CHROMELYPARAM* pParam) {
 
     // Create the application delegate.
     NSObject* appDelegate = [[[ChromelyAppDelegate alloc] init] autorelease];
-    NSLog(@"Created: appDelegate appDelegate:%@", appDelegate);
 
     [appDelegate setParams:*pParam];
     NSLog(@"appDelegate setParams set");
