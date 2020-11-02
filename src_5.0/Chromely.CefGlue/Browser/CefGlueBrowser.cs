@@ -171,7 +171,9 @@ namespace Chromely.CefGlue.Browser
 
             CefBrowserHost.CreateBrowser(windowInfo, _client, _settings, StartUrl);
         }
-        
+
+
+        private static CefBrowserHost _host = null;
         /// <summary>
         /// The dispose.
         /// </summary>
@@ -179,7 +181,7 @@ namespace Chromely.CefGlue.Browser
         {
             unsafe
             {
-                Debug.WriteLine("CefGlueBrowser entering dispose");
+                "CefGlueBrowser entering dispose".LogDebug();
 
                 // due we don't want to change Xilium.CefGlue.CefBrowser
                 // we check the internal _self property to see
@@ -189,24 +191,25 @@ namespace Chromely.CefGlue.Browser
                     && Pointer.Unbox(self) != null)
                 {
 
-                    Debug.WriteLine("CefGlueBrowser closebrowser true");
+                    "CefGlueBrowser closebrowser true, cefbrowser.dispose()".LogDebug();
 
                     var host = CefBrowser.GetHost();
                     host.CloseBrowser(true);
 
                     //https://magpcss.org/ceforum/viewtopic.php?f=14&t=17692
                     CefBrowser.Dispose();
-                    host.Dispose();
-                    CefBrowser = null;
+                    //"disposing of host".LogDebug();
+                  // host.Dispose();
+                    "Removed cefbrowser =null".LogDebug();
+                    //CefBrowser = null;
 
-                    Debug.WriteLine("calling CefGlueBrowser OnBeforeClosed explicitly");
+                    "calling CefGlueBrowser OnBeforeClosed explicitly".LogDebug();
 
                     BeforeClose?.Invoke(this, null);
-
                 }
                 else
                 {
-                    Debug.WriteLine("CefGlueBrowser availible to close");
+                    "CefGlueBrowser availible to close".LogDebug(); ;
                 }
             }
 

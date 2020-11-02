@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="CefGlueLifeSpanHandler.cs" company="Chromely Projects">
 //   Copyright (c) 2017-2019 Chromely Projects
 // </copyright>
@@ -45,7 +45,7 @@ namespace Chromely.CefGlue.Browser.Handlers
             base.OnAfterCreated(browser);
             _browser.InvokeAsyncIfPossible(() =>
             {
-                Debug.WriteLine("CefGlueLifeSpanHandler async AfterCreated");   
+                "CefGlueLifeSpanHandler async AfterCreated".LogDebug();   
 
                 _browser.OnBrowserAfterCreated(browser);
             });
@@ -58,19 +58,13 @@ namespace Chromely.CefGlue.Browser.Handlers
             this.Dispose(true); // <-- so i added this code to forefully destroy it even though
                                 //this is probably notentirely correct - the doco says after this function returns
                                 // the window should be removed
-            _browser = null;
+			
             return true;
         }
 
         protected override void OnBeforeClose(CefBrowser browser)
         {
-            Debug.WriteLine("CefGlueLifeSpanHandler OnBeforeClose!!!");
-
-            _browser.InvokeAsyncIfPossible(() =>
-            {
-                Debug.WriteLine("CefGlueLifeSpanHandler async calling close");
-
-            });
+            "CefGlueLifeSpanHandler OnBeforeClose!!! this is never called if you see this, UMM!! look at why!".LogDebug();
         }
 
         protected override bool OnBeforePopup(CefBrowser browser, CefFrame frame, string targetUrl, string targetFrameName, CefWindowOpenDisposition targetDisposition, bool userGesture, CefPopupFeatures popupFeatures, CefWindowInfo windowInfo, ref CefClient client, CefBrowserSettings settings, ref CefDictionaryValue extraInfo, ref bool noJavascriptAccess)

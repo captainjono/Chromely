@@ -8,7 +8,7 @@ namespace Chromely.Windows
     public abstract class NativeWindow
     {
         private readonly IChromelyConfiguration _config;
-        protected readonly IChromelyNativeHost _nativeHost;
+        protected static IChromelyNativeHost _nativeHost;
 
         public NativeWindow(IChromelyNativeHost nativeHost, IChromelyConfiguration config)
         {
@@ -28,7 +28,7 @@ namespace Chromely.Windows
         }
 
         public IntPtr Handle { get; set; }
-        public IntPtr WinXID { get; set; }
+        public IntPtr WinXID { get; set; }    
 
         public virtual void ShowWindow()
         {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -19,16 +20,23 @@ namespace Chromely.Native
         public event EventHandler<CloseEventArgs> Close;
 
         private delegate void RunMessageLoopCallback();
+
         private delegate void CefShutdownCallback();
+
         private delegate void InitCallbackEvent(IntPtr app, IntPtr pool);
+
         private delegate void CreateCallbackEvent(IntPtr window, IntPtr view);
+
         private delegate void MovingCallbackEvent();
+
         private delegate void ResizeCallbackEvent(int width, int height);
+
         private delegate void QuitCallbackEvent();
+
         private delegate void LogCallbackEvent(int msg);
 
-        private ChromelyParam _configParam;
-        private IWindowOptions _options;
+        private static ChromelyParam _configParam;
+        private static IWindowOptions _options;
         private IntPtr _appHandle;
         private IntPtr _poolHandle;
         private IntPtr _windowHandle;
@@ -45,19 +53,20 @@ namespace Chromely.Native
             _viewHandle = IntPtr.Zero;
             _isInitialized = false;
         }
+
         public virtual IntPtr Handle => _windowHandle;
 
         public virtual void CreateWindow(IWindowOptions options, bool debugging)
         {
             _options = options;
             _configParam = InitParam(RunCallback,
-                                                    ShutdownCallback,
-                                                    InitCallback,
-                                                    CreateCallback,
-                                                    MovingCallback,
-                                                    ResizeCallback,
-                                                    LogCallback,
-                                                    QuitCallback
+                ShutdownCallback,
+                InitCallback,
+                CreateCallback,
+                MovingCallback,
+                ResizeCallback,
+                LogCallback,
+                QuitCallback
             );
 
 
@@ -92,13 +101,15 @@ namespace Chromely.Native
             return new Size();
         }
 
-        public virtual float GetWindowDpiScale() {
+        public virtual float GetWindowDpiScale()
+        {
             return 1.0f;
         }
 
         /// <summary> Gets the current window state Maximised / Normal / Minimised etc. </summary>
         /// <returns> The window state. </returns>
-        public virtual WindowState GetWindowState() {
+        public virtual WindowState GetWindowState()
+        {
             // TODO required for frameless Maccocoa mode
             return WindowState.Normal;
         }
@@ -106,7 +117,8 @@ namespace Chromely.Native
         /// <summary> Sets window state. Maximise / Minimize / Restore. </summary>
         /// <param name="state"> The state to set. </param>
         /// <returns> True if it succeeds, false if it fails. </returns>
-        public bool SetWindowState(WindowState state) {
+        public bool SetWindowState(WindowState state)
+        {
             // TODO required for frameless Maccocoa mode
             return false;
         }
@@ -133,10 +145,26 @@ namespace Chromely.Native
 
         protected virtual void RunCallback()
         {
-            if (onRun != null)
-                onRun();
-            else
-                CefRuntime.RunMessageLoop();
+            try
+            {
+                if (onRun != null)
+                    onRun();
+                else
+                    CefRuntime.RunMessageLoop();
+
+                "Run Message loop finished!!!".LogInfo();
+             //   "Shutting down".LogDebug();
+                
+                
+             //   _viewHandle = IntPtr.Zero;
+             //   _windowHandle = IntPtr.Zero;
+              //  CefRuntime.Shutdown();
+            //    "Success. Exiting now.".LogDebug();
+            }
+            catch (Exception e)
+            {
+                "Chromely crashed".LogError(e);
+            }
         }
 
         protected virtual void ShutdownCallback()
@@ -144,16 +172,27 @@ namespace Chromely.Native
             _viewHandle = IntPtr.Zero;
             _windowHandle = IntPtr.Zero;
 
-            Logger.Instance.Log.Info("CEF ShutdownCallback");
-            Thread.Sleep(2000);
+            "CEF ShutdownCallback".LogDebug();
+            TimeSpan.FromSeconds(0.5).SpinFor();
+
             CefRuntime.Shutdown();
+            TimeSpan.FromSeconds(5).SpinFor();
+
+            for (int i = 0; i < 10; i++)
+            {
+                "CEF ShutdownCallback attempting to crash".LogDebug();
+                TimeSpan.FromSeconds(0.5).SpinFor();
+            }
+
+
+            "CEF ShutdownCallback ended".LogDebug();
         }
 
         protected virtual void InitCallback(IntPtr app, IntPtr pool)
         {
             _appHandle = app;
             _poolHandle = pool;
-            Console.WriteLine($"{DateTime.Now.ToLocalTime().ToString()}:initCallback");
+            $"{DateTime.Now.ToLocalTime().ToString()}:initCallback".LogDebug();
         }
 
         protected virtual void CreateCallback(IntPtr window, IntPtr view)
@@ -185,11 +224,11 @@ namespace Chromely.Native
         {
             try
             {
-                Logger.Instance.Log.Info("CEF TERMINATE - quit callback");
-                Thread.Sleep(500);
-                //CefRuntime.Shutdown();
+                "CEF TERMINATE - quit callback".LogDebug();
+                TimeSpan.FromSeconds(0.5);
+//                CefRuntime.Shutdown();
                 Close?.Invoke(this, new CloseEventArgs());
-                Environment.Exit(0);
+                //Environment.Exit(0);
             }
             catch (Exception exception)
             {
@@ -209,26 +248,39 @@ namespace Chromely.Native
             }
         }
 
+        private static RunMessageLoopCallback _runCallback;
+        
+        private static InitCallbackEvent _initCallback;
+        private static CreateCallbackEvent _createCallback;
+        private static QuitCallbackEvent _exitCallback;
+        private static LogCallbackEvent _logCallback;
+        private static CefShutdownCallback _cefShutdownCallback;
 
         private static ChromelyParam InitParam(RunMessageLoopCallback runCallback,
-                                                    CefShutdownCallback cefShutdownCallback,
-                                                    InitCallbackEvent initCallback,
-                                                    CreateCallbackEvent createCallback,
-                                                    MovingCallbackEvent movingCallback,
-                                                    ResizeCallbackEvent resizeCallback,
-                                                    LogCallbackEvent logCallback,
-                                                    QuitCallbackEvent quitCallback)
+            CefShutdownCallback cefShutdownCallback,
+            InitCallbackEvent initCallback,
+            CreateCallbackEvent createCallback,
+            MovingCallbackEvent movingCallback,
+            ResizeCallbackEvent resizeCallback,
+            LogCallbackEvent logCallback,
+            QuitCallbackEvent quitCallback)
         {
-
             ChromelyParam configParam = new ChromelyParam();
-            configParam.runMessageLoopCallback = Marshal.GetFunctionPointerForDelegate(runCallback);
-            configParam.cefShutdownCallback = Marshal.GetFunctionPointerForDelegate(cefShutdownCallback);
-            configParam.initCallback = Marshal.GetFunctionPointerForDelegate(initCallback);
-            configParam.createCallback = Marshal.GetFunctionPointerForDelegate(createCallback);
+            "Stopping runcallback from being GC'd".LogDebug();
+            _runCallback = runCallback;
+            _initCallback = initCallback;
+            _createCallback = createCallback;
+            _exitCallback = quitCallback;
+            _logCallback = logCallback;
+            _cefShutdownCallback = cefShutdownCallback;
+            configParam.runMessageLoopCallback = Marshal.GetFunctionPointerForDelegate(_runCallback);
+            configParam.cefShutdownCallback = Marshal.GetFunctionPointerForDelegate(_cefShutdownCallback);
+            configParam.initCallback = Marshal.GetFunctionPointerForDelegate(_initCallback);
+            configParam.createCallback = Marshal.GetFunctionPointerForDelegate(_createCallback);
             configParam.movingCallback = Marshal.GetFunctionPointerForDelegate(movingCallback);
             configParam.resizeCallback = Marshal.GetFunctionPointerForDelegate(resizeCallback);
-            configParam.exitCallback = Marshal.GetFunctionPointerForDelegate(quitCallback);
-            configParam.logCallback = Marshal.GetFunctionPointerForDelegate(logCallback);
+            configParam.exitCallback = Marshal.GetFunctionPointerForDelegate(_exitCallback);
+            configParam.logCallback = Marshal.GetFunctionPointerForDelegate(_logCallback);
 
             return configParam;
         }

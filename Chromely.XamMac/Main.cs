@@ -22,64 +22,22 @@ using Xilium.CefGlue;
 
 namespace Chromely.XamMac
 {
-    public class NSAppWork : Chromely.Native.MacCocoaHost
-    {
-        protected override void RunCallback()
-        {
-            CFRunLoop.Main.Run();
-        }
-    }
-
     static class MainClass
     {
         static void Main(string[] args)
         {
-            NSTimer timer = null;
-            var tt = new TaskCompletionSource<bool>();
-
-            MacCocoaHost.onRun = async () => {
-
-                NSApplication.Init();
-                                                    
-
-                timer = NSTimer.CreateRepeatingTimer(0.003, _ =>
-                {
-                    DispatchQueue.MainQueue.DispatchAsync(() => CefRuntime.DoMessageLoopWork());
-                });
-
-                NSRunLoop.Main.AddTimer(timer, NSRunLoopMode.Default);
-
-                var done = false;
-                do
-                {
-                   // Start the run loop but return after each source is handled.
-                    var result = CFRunLoop.Main.RunInMode(CFRunLoop.ModeDefault, 100, true);// CFRunLoopRunInMode(kCFRunLoopDefaultMode, 10, YES);
-                    
-                    // If a source explicitly stopped the run loop, or if there are no
-                    // sources or timers, go ahead and exit.
-                    if ((result == CFRunLoopExitReason.Finished))
-                    {
-                        done = true;
-                    }
-                }
-                while (!done);
-                Debug.WriteLine("Exiting loop");
-
-            };
-
-            MacCocoaHost.onRun = null;
-
-            CefGlueBrowserProcessHandler.OnShcuedlerWork = (delayMs) =>
+            var ended = false;
+            new Thread(() =>
             {
-                DispatchQueue.MainQueue.DispatchAfter(new DispatchTime((ulong) delayMs * 100000), () =>
+                while (true)
                 {
-                    CefRuntime.DoMessageLoopWork();
-                });
-            };
-
-            
-            //Observabl.In(TimeSpan.FromSeconds(1 / 60)).Do(CefRuntime.DoMessageLoopWork).Subscribe();
-
+                    if (ended)
+                        break;
+                    
+                    Thread.Sleep(200);
+                    GC.Collect(2);
+                }
+            }).Start();
 
             var config = new DemoAppCfg()
             {
@@ -123,58 +81,40 @@ namespace Chromely.XamMac
                 //looks like terminating the application sends the right messages.
                 //modify lobchromely to implement the cefshutdown on the swizzelled terminate?
 
-                mainWin.Close();
-
                 CefRuntime.PostTask(CefThreadId.UI, new HostBase.ActionTask(() =>
                 {
-                    //compare with cefsimple to see how there shutdown works?
-                    //its saying that ceflifespanhandler onbeforeclosed is being called after destruction of the
-                    //window? why? i just commneted out the handler in .g.cs to see if it had an effect - it didnt!
-                    //i just commented out
-                    //https://www.magpcss.org/ceforum/viewtopic.php?f=6&t=11441#p20028
-                    //close window
-                    //release all browser resources
-                    //quit loop
-                    //shutdown
-                    //release app resources and exit
-                    
-                    Debug.WriteLine("Quitmessageloop delayed");
-                    CefRuntime.QuitMessageLoop();
+                    //"cefglue doclose".LogDebug();
+                    //mainWin.Close();
+                }));
 
-                }), 2000);
             };
 
             Chromely.Windows.Window._onCreated = cWindow =>
             {
-
-                ///mainWin = ObjCRuntime.Runtime.GetNSObject<NSWindow>(cWindow.HostHandle, false);
-                //allow xam-mac to run
-                //need to NSApplication.Init(); here, not before CEF has loaded
-                //Use CEF's UI scheduler to update UI
                 CefRuntime.PostTask(CefThreadId.UI, new HostBase.ActionTask(() =>
                 {
-                    try
+                    "Init xam app".LogDebug();
+                    NSApplication.Init();
+                    mainWin = ObjCRuntime.Runtime.GetNSObject<NSWindow>(cWindow.HostHandle, false);
+                    //mainWin = null;
+                    //allow xam-mac to run
+                    //need to NSApplication.Init(); here, not before CEF has loaded
+                    //Use CEF's UI scheduler to update UI
+                    CefRuntime.PostTask(CefThreadId.UI, new HostBase.ActionTask(() =>
                     {
-
-                        NSApplication.Init();
-                        mainWin = ObjCRuntime.Runtime.GetNSObject<NSWindow>(cWindow.HostHandle, false);
-
-                        Debug.WriteLine("Disposing of Chromely Window");
-                        cWindow.Dispose();
-                        Debug.WriteLine("Disposed of Chromely Window");
-
-                        CefRuntime.PostTask(CefThreadId.UI, new HostBase.ActionTask(() =>
+                        try
                         {
-                            //Debug.WriteLine("QuiteMessageLoop being called");
-                            //CefRuntime.QuitMessageLoop();
-                        }), 200);
+                            "Disposing of Chromely Window".LogDebug();
+                            cWindow.Dispose();
 
-                    }
-                    catch(Exception e)
-                    {
-                        Debug.Write("ERROR" + e);
-                    }
-                }), 1000 * 8);
+                            //  CefRuntime.QuitMessageLoop() trigger in doClose() ^
+                        }
+                        catch (Exception e)
+                        {
+                            "While running".LogError(e);
+                        }
+                    }), 1000 * 5);
+                }));
             };
 
             var chromelyContainer = new SimpleContainer();
@@ -187,6 +127,9 @@ namespace Chromely.XamMac
                 .UseLogger<DebugLogger>()
                 .Build()
                 .Run(args);
+
+            ended = true;
+            "Exiting gracefully".LogDebug();
         }
 
 
@@ -199,8 +142,11 @@ namespace Chromely.XamMac
 
             public override IChromelyWindow CreateWindow()
             {
-                Debug.WriteLine("CreateWindow DemoApp");
-                return (IChromelyWindow)Container.GetInstance(typeof(IChromelyWindow), typeof(IChromelyWindow).Name);
+                "CreateWindow DemoApp".LogDebug();
+                var win = (IChromelyWindow)Container.GetInstance(typeof(IChromelyWindow), typeof(IChromelyWindow).Name);
+                
+               // "CreateWindow returned".LogDebug();
+                return win;
             }
         }
 
@@ -238,55 +184,57 @@ namespace Chromely.XamMac
         {
             public void WriteDebug(string state, string msg)
             {
-                System.Diagnostics.Debug.WriteLine($"[{state}] {msg}");
+                msg.LogDebug();
             }
 
             public void Info(string message)
             {
-                WriteDebug("Info", message);
+                message.LogInfo();
             }
 
             public void Verbose(string message)
             {
-                WriteDebug("Info", message);
+                message.LogDebug();
+
             }
 
             public void Debug(string message)
             {
-                WriteDebug("Info", message);
+                message.LogDebug();
+
             }
 
             public void Warn(string message)
             {
-                WriteDebug("Warn", message);
+                message.LogDebug();
             }
 
             public void Critial(string message)
             {
-                WriteDebug("Error", message);
+                message.LogError();
             }
 
             public void Fatal(string message)
             {
-                WriteDebug("Error", message);
+                message.LogError();
+
             }
 
             public void Error(string message)
             {
-                WriteDebug("Error", message);
+                message.LogError();
 
             }
 
             public void Error(Exception exception)
             {
-                WriteDebug("Error", exception.ToString());
+                "Error".LogError(exception);
 
             }
 
             public void Error(Exception exception, string message)
             {
-                WriteDebug("Error", message);
-
+                message.LogError(exception);
             }
         }
     }

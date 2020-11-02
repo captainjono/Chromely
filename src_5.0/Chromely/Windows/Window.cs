@@ -72,9 +72,9 @@ namespace Chromely.Windows
         {
             try
             {
-                if (Browser != null)
+                if (_browserWindowHandle != IntPtr.Zero)
                 {
-                    Debug.WriteLine("Telling browser to close");
+                    "Telling browser to close".LogDebug();
                     
                     //https://github.com/cefsharp/cefsharp/issues/3047
                     //recent CEfSharp issue which tackles the same problem
@@ -83,11 +83,16 @@ namespace Chromely.Windows
                     //Browser?.OnBeforeClose();
 
                     Browser?.Dispose();
-
-                   // Thread.Sleep(500);
-                    Browser = null;
-                    //_browserWindowHandle = IntPtr.Zero;
+                    
+                    "Removed browser=null which stopped , but added back sleep and clearing of window handle".LogDebug();
+                    TimeSpan.FromSeconds(0.5).SpinFor();
+                    //Browser = null;
+                    _browserWindowHandle = IntPtr.Zero;
                     //Exit();
+                }
+                else
+                {
+                    "Dispose already called on window!".LogDebug();
                 }
             }
             catch (Exception exception)
@@ -107,10 +112,10 @@ namespace Chromely.Windows
         {
             Handle = createdEventArgs.Window;
             WinXID = createdEventArgs.WinXID;
-            Browser.HostHandle = createdEventArgs.Window;
+            Browser.HostHandle = Handle;
 
             var windowInfo = CefWindowInfo.Create();
-            windowInfo.SetAsChild(createdEventArgs.WinXID, new CefRectangle(0, 0, _config.WindowOptions.Size.Width, _config.WindowOptions.Size.Height));
+            windowInfo.SetAsChild(WinXID, new CefRectangle(0, 0, _config.WindowOptions.Size.Width, _config.WindowOptions.Size.Height));
 
             Browser.Create(windowInfo);
         }
@@ -133,12 +138,18 @@ namespace Chromely.Windows
 
         protected override void OnClose(object sender, CloseEventArgs closeChangedEventArgs)
         {
-            Debug.WriteLine("Window Onclose called");
+            //"Window Onclose called, not Disposing of window as its alredy been done".LogDebug();
+            "Not releasing resources in onclosed".LogDebug();
+          //  Browser = null;
 
-            Dispose();
-            Core.Infrastructure.ChromelyAppUser.App.Properties.Save(_config);
+          //  Handle = IntPtr.Zero;
+           // WinXID = IntPtr.Zero;
+            //Dispose();
+           // Core.Infrastructure.ChromelyAppUser.App.Properties.Save(_config);
+
+            //_onClose?.Invoke();
         }
-
+        public static Action _onClose;
         private void OnBrowserCreated(object sender, EventArgs e)
         {
             _browserWindowHandle = Browser.CefBrowser.GetHost().GetWindowHandle();
@@ -148,7 +159,7 @@ namespace Chromely.Windows
                 ResizeBrowser(_browserWindowHandle);
             }
             
-            Debug.WriteLine("Created browser window. calling plugin");
+            "Created browser window. calling plugin".LogDebug();
             _onCreated?.Invoke(this);
         }
 

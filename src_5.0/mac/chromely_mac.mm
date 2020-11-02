@@ -384,8 +384,8 @@ void createwindow(CHROMELYPARAM* pParam) {
         pParam->runMessageLoopCallback();
         pParam->logCallback(8);
         // Shut down CEF.
-        pParam->cefShutdownCallback();
-        pParam->logCallback(9);
+        //pParam->cefShutdownCallback();
+        //pParam->logCallback(9);
 
         // Release the delegate.
         #if !__has_feature(objc_arc)
