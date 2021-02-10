@@ -25,6 +25,8 @@ namespace Chromely.CefGlue.Browser.Handlers
         protected readonly IChromelyConfiguration _config;
         protected readonly IChromelyCommandTaskRunner _commandTaskRunner;
         protected CefGlueBrowser _browser;
+
+        //todo: fix hack
         public static Action<CefBrowser> _doClose;
 
         public CefGlueLifeSpanHandler(IChromelyConfiguration config, IChromelyCommandTaskRunner commandTaskRunner, CefGlueBrowser browser)

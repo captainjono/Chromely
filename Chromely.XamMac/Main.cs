@@ -74,18 +74,17 @@ namespace Chromely.XamMac
             };
     
 
-                NSWindow mainWin = null;
+                
 
+            //hack to properly shut down macos, will be removed in future versions
             CefGlueLifeSpanHandler._doClose = _ =>
             {
                 //looks like terminating the application sends the right messages.
-                //modify lobchromely to implement the cefshutdown on the swizzelled terminate?
-
                 CefRuntime.PostTask(CefThreadId.UI, new HostBase.ActionTask(() =>
                 {
-                    //"cefglue doclose".LogDebug();
-                    //mainWin.Close();
-                }));
+                    "Calling CefRuntime.QuitMessageLoop()".LogDebug();
+                    CefRuntime.QuitMessageLoop();
+                }), 500);
 
             };
 
@@ -95,11 +94,10 @@ namespace Chromely.XamMac
                 {
                     "Init xam app".LogDebug();
                     NSApplication.Init();
-                    mainWin = ObjCRuntime.Runtime.GetNSObject<NSWindow>(cWindow.HostHandle, false);
-                    //mainWin = null;
-                    //allow xam-mac to run
-                    //need to NSApplication.Init(); here, not before CEF has loaded
-                    //Use CEF's UI scheduler to update UI
+                    var mainWin = ObjCRuntime.Runtime.GetNSObject<NSWindow>(cWindow.HostHandle, false);
+                    //^^^^ profit$$
+                    
+                    //you can postwork with NSRunloop also
                     CefRuntime.PostTask(CefThreadId.UI, new HostBase.ActionTask(() =>
                     {
                         try
@@ -107,7 +105,7 @@ namespace Chromely.XamMac
                             "Disposing of Chromely Window".LogDebug();
                             cWindow.Dispose();
 
-                            //  CefRuntime.QuitMessageLoop() trigger in doClose() ^
+                            //CefRuntime.QuitMessageLoop() trigger in doClose() ^
                         }
                         catch (Exception e)
                         {
