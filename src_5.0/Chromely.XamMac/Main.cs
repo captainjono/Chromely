@@ -74,17 +74,19 @@ namespace Chromely.XamMac
             };
     
 
-                
+                NSWindow mainWin = null;
 
-            //hack to properly shut down macos, will be removed in future versions
             CefGlueLifeSpanHandler._doClose = _ =>
             {
                 //looks like terminating the application sends the right messages.
+                //modify lobchromely to implement the cefshutdown on the swizzelled terminate?
+
                 CefRuntime.PostTask(CefThreadId.UI, new HostBase.ActionTask(() =>
                 {
-                    "Calling CefRuntime.QuitMessageLoop()".LogDebug();
+                    //"cefglue doclose".LogDebug();
+                    //mainWin.Close();
                     CefRuntime.QuitMessageLoop();
-                }), 500);
+                }));
 
             };
 
@@ -94,18 +96,19 @@ namespace Chromely.XamMac
                 {
                     "Init xam app".LogDebug();
                     NSApplication.Init();
-                    var mainWin = ObjCRuntime.Runtime.GetNSObject<NSWindow>(cWindow.HostHandle, false);
-                    //^^^^ profit$$
-                    
-                    //you can postwork with NSRunloop also
+                    mainWin = ObjCRuntime.Runtime.GetNSObject<NSWindow>(cWindow.HostHandle, false);
+                    //mainWin = null;
+                    //allow xam-mac to run
+                    //need to NSApplication.Init(); here, not before CEF has loaded
+                    //Use CEF's UI scheduler to update UI
                     CefRuntime.PostTask(CefThreadId.UI, new HostBase.ActionTask(() =>
                     {
                         try
                         {
                             "Disposing of Chromely Window".LogDebug();
                             cWindow.Dispose();
-
-                            //CefRuntime.QuitMessageLoop() trigger in doClose() ^
+                            //  CefRuntime.QuitMessageLoop();
+                            // Debug.WriteLine("Disposed of Chromely Window");
                         }
                         catch (Exception e)
                         {

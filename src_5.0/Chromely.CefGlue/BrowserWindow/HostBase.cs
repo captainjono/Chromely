@@ -14,13 +14,13 @@ namespace Chromely.CefGlue.BrowserWindow
 {
     public abstract partial class HostBase : IChromelyWindow
     {
-        protected IChromelyNativeHost _nativeHost;
+        protected static IChromelyNativeHost _nativeHost;
         protected readonly IChromelyContainer _container;
         protected readonly IChromelyConfiguration _config;
         protected readonly IChromelyRequestTaskRunner _requestTaskRunner;
         protected readonly IChromelyCommandTaskRunner _commandTaskRunner;
 
-        protected IWindow _mainWindow;
+        protected static IWindow _mainWindow;
 
         protected HostBase(IChromelyNativeHost nativeHost, IChromelyContainer container, IChromelyConfiguration config, IChromelyRequestTaskRunner requestTaskRunner, IChromelyCommandTaskRunner commandTaskRunner)
         {
@@ -261,6 +261,7 @@ namespace Chromely.CefGlue.BrowserWindow
 
             Shutdown();
 
+            "Chromely complete".LogDebug();
             return 0;
         }
 

@@ -1,0 +1,60 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30309.148
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chromely.XamMac", "Chromely.XamMac.csproj", "{5958B4B8-821D-44CF-BAD0-F6D72457A126}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chromely", "..\Chromely\Chromely.csproj", "{3E383EA8-FE2D-4921-BDBD-EF712281758F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chromely.CefGlue", "..\Chromely.CefGlue\Chromely.CefGlue.csproj", "{9202F378-FD76-4826-9F0E-0D654ECAD9F7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chromely.Core", "..\Chromely.Core\Chromely.Core.csproj", "{BA312FA1-1043-4833-8CD8-01772C5C1DE0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		DebugLinux|Any CPU = DebugLinux|Any CPU
+		Release|Any CPU = Release|Any CPU
+		ReleaseLinux|Any CPU = ReleaseLinux|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5958B4B8-821D-44CF-BAD0-F6D72457A126}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5958B4B8-821D-44CF-BAD0-F6D72457A126}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5958B4B8-821D-44CF-BAD0-F6D72457A126}.DebugLinux|Any CPU.ActiveCfg = Debug|Any CPU
+		{5958B4B8-821D-44CF-BAD0-F6D72457A126}.DebugLinux|Any CPU.Build.0 = Debug|Any CPU
+		{5958B4B8-821D-44CF-BAD0-F6D72457A126}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5958B4B8-821D-44CF-BAD0-F6D72457A126}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5958B4B8-821D-44CF-BAD0-F6D72457A126}.ReleaseLinux|Any CPU.ActiveCfg = Release|Any CPU
+		{5958B4B8-821D-44CF-BAD0-F6D72457A126}.ReleaseLinux|Any CPU.Build.0 = Release|Any CPU
+		{3E383EA8-FE2D-4921-BDBD-EF712281758F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E383EA8-FE2D-4921-BDBD-EF712281758F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E383EA8-FE2D-4921-BDBD-EF712281758F}.DebugLinux|Any CPU.ActiveCfg = DebugLinux|Any CPU
+		{3E383EA8-FE2D-4921-BDBD-EF712281758F}.DebugLinux|Any CPU.Build.0 = DebugLinux|Any CPU
+		{3E383EA8-FE2D-4921-BDBD-EF712281758F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E383EA8-FE2D-4921-BDBD-EF712281758F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E383EA8-FE2D-4921-BDBD-EF712281758F}.ReleaseLinux|Any CPU.ActiveCfg = ReleaseLinux|Any CPU
+		{3E383EA8-FE2D-4921-BDBD-EF712281758F}.ReleaseLinux|Any CPU.Build.0 = ReleaseLinux|Any CPU
+		{9202F378-FD76-4826-9F0E-0D654ECAD9F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9202F378-FD76-4826-9F0E-0D654ECAD9F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9202F378-FD76-4826-9F0E-0D654ECAD9F7}.DebugLinux|Any CPU.ActiveCfg = DebugLinux|Any CPU
+		{9202F378-FD76-4826-9F0E-0D654ECAD9F7}.DebugLinux|Any CPU.Build.0 = DebugLinux|Any CPU
+		{9202F378-FD76-4826-9F0E-0D654ECAD9F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9202F378-FD76-4826-9F0E-0D654ECAD9F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9202F378-FD76-4826-9F0E-0D654ECAD9F7}.ReleaseLinux|Any CPU.ActiveCfg = ReleaseLinux|Any CPU
+		{9202F378-FD76-4826-9F0E-0D654ECAD9F7}.ReleaseLinux|Any CPU.Build.0 = ReleaseLinux|Any CPU
+		{BA312FA1-1043-4833-8CD8-01772C5C1DE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA312FA1-1043-4833-8CD8-01772C5C1DE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA312FA1-1043-4833-8CD8-01772C5C1DE0}.DebugLinux|Any CPU.ActiveCfg = DebugLinux|Any CPU
+		{BA312FA1-1043-4833-8CD8-01772C5C1DE0}.DebugLinux|Any CPU.Build.0 = DebugLinux|Any CPU
+		{BA312FA1-1043-4833-8CD8-01772C5C1DE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA312FA1-1043-4833-8CD8-01772C5C1DE0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA312FA1-1043-4833-8CD8-01772C5C1DE0}.ReleaseLinux|Any CPU.ActiveCfg = ReleaseLinux|Any CPU
+		{BA312FA1-1043-4833-8CD8-01772C5C1DE0}.ReleaseLinux|Any CPU.Build.0 = ReleaseLinux|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F6940E6F-20C5-44EA-AC59-6BEE782C60C9}
+	EndGlobalSection
+EndGlobal
