@@ -21,6 +21,8 @@ namespace Chromely.Native
 
         private delegate void RunMessageLoopCallback();
 
+        private static RunMessageLoopCallback _runMessageLoopCallback;
+
         private delegate void CefShutdownCallback();
 
         private delegate void InitCallbackEvent(IntPtr app, IntPtr pool);
@@ -176,13 +178,8 @@ namespace Chromely.Native
             TimeSpan.FromSeconds(0.5).SpinFor();
 
             CefRuntime.Shutdown();
-            TimeSpan.FromSeconds(5).SpinFor();
+            TimeSpan.FromSeconds(0.5).SpinFor();
 
-            for (int i = 0; i < 10; i++)
-            {
-                "CEF ShutdownCallback attempting to crash".LogDebug();
-                TimeSpan.FromSeconds(0.5).SpinFor();
-            }
 
 
             "CEF ShutdownCallback ended".LogDebug();

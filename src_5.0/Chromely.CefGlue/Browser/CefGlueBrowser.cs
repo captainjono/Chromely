@@ -191,17 +191,16 @@ namespace Chromely.CefGlue.Browser
                     && Pointer.Unbox(self) != null)
                 {
 
-                    "CefGlueBrowser closebrowser true, cefbrowser.dispose()".LogDebug();
+                    "About to call cef.CloseBrowser()".LogDebug();
+
+                    if(CefBrowser.IsLoading)
+                        CefBrowser.StopLoad();
 
                     var host = CefBrowser.GetHost();
                     host.CloseBrowser(true);
 
                     //https://magpcss.org/ceforum/viewtopic.php?f=14&t=17692
                     CefBrowser.Dispose();
-                    //"disposing of host".LogDebug();
-                  // host.Dispose();
-                    "Removed cefbrowser =null".LogDebug();
-                    //CefBrowser = null;
 
                     "calling CefGlueBrowser OnBeforeClosed explicitly".LogDebug();
 

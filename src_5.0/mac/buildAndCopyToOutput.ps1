@@ -10,7 +10,7 @@ if($isDemo -ne "demo")
         exit $LASTEXITCODE
     }
     Copy-Item -Force -Path "libchromely.dylib" -Destination "../Chromely/Native/MacCocoa"
-    Copy-Item -Force -Path "libchromely.dylib" -Destination "../../Chromely.XamMac/bin/Debug/Chromely.XamMac.app/Contents/MonoBundle"
+    Copy-Item -Force -Path "libchromely.dylib" -Destination "../../src/Chromely.XamMac/bin/Debug/Chromely.XamMac.app/Contents/MonoBundle"
 }
 else
 {

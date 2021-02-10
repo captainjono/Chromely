@@ -1,0 +1,147 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{5958B4B8-821D-44CF-BAD0-F6D72457A126}</ProjectGuid>
+    <ProjectTypeGuids>{A3F8F2AB-B479-4A4A-A458-A89E7DC349F1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Chromely.XamMac</RootNamespace>
+    <AssemblyName>Chromely.XamMac</AssemblyName>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkIdentifier>Xamarin.Mac</TargetFrameworkIdentifier>
+    <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <EnableCodeSigning>false</EnableCodeSigning>
+    <CodeSigningKey>Mac Developer</CodeSigningKey>
+    <CreatePackage>false</CreatePackage>
+    <EnablePackageSigning>false</EnablePackageSigning>
+    <IncludeMonoRuntime>false</IncludeMonoRuntime>
+    <UseSGen>true</UseSGen>
+    <UseRefCounting>true</UseRefCounting>
+    <LinkMode>Full</LinkMode>
+    <AOTMode>All</AOTMode>
+    <EnableSGenConc>true</EnableSGenConc>
+    <HybridAOT>true</HybridAOT>
+    <HttpClientHandler>NSUrlSessionHandler</HttpClientHandler>
+    <XamMacArch>x86_64</XamMacArch>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <EnableCodeSigning>false</EnableCodeSigning>
+    <CreatePackage>false</CreatePackage>
+    <EnablePackageSigning>false</EnablePackageSigning>
+    <IncludeMonoRuntime>true</IncludeMonoRuntime>
+    <UseSGen>true</UseSGen>
+    <UseRefCounting>true</UseRefCounting>
+    <CodeSignEntitlements>Entitlements.plist</CodeSignEntitlements>
+    <LinkMode>Full</LinkMode>
+    <AOTMode>All</AOTMode>
+    <EnableSGenConc>true</EnableSGenConc>
+    <HybridAOT>true</HybridAOT>
+    <XamMacArch>x86_64</XamMacArch>
+    <I18n>west</I18n>
+    <MonoBundlingExtraArgs>--linkskip=Chromely.XamMac --linkskip=Chromely.CefGlue --linkskip=Chromely --linkskip=Chromely.Core</MonoBundlingExtraArgs>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="Xamarin.Mac" />
+    <Reference Include="System.Buffers">
+      <HintPath>packages\System.Buffers.4.5.1\lib\netstandard2.0\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe">
+      <HintPath>packages\System.Runtime.CompilerServices.Unsafe.4.7.1\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Encodings.Web">
+      <HintPath>packages\System.Text.Encodings.Web.4.7.1\lib\netstandard2.1\System.Text.Encodings.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces">
+      <HintPath>packages\Microsoft.Bcl.AsyncInterfaces.1.1.0\lib\netstandard2.1\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Json">
+      <HintPath>packages\System.Text.Json.4.7.2\lib\netstandard2.0\System.Text.Json.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\AppIcon-128.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\AppIcon-128%402x.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\AppIcon-16.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\AppIcon-16%402x.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\AppIcon-256.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\AppIcon-256%402x.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\AppIcon-32.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\AppIcon-32%402x.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\AppIcon-512.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\AppIcon-512%402x.png" />
+    <ImageAsset Include="Assets.xcassets\Contents.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Info.plist" />
+    <None Include="Entitlements.plist" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Main.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Chromely.CefGlue\Chromely.CefGlue.csproj">
+      <Project>{9202f378-fd76-4826-9f0e-0d654ecad9f7}</Project>
+      <Name>Chromely.CefGlue</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Chromely.Core\Chromely.Core.csproj">
+      <Project>{ba312fa1-1043-4833-8cd8-01772c5c1de0}</Project>
+      <Name>Chromely.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Chromely\Chromely.csproj">
+      <Project>{3e383ea8-fe2d-4921-bdbd-ef712281758f}</Project>
+      <Name>Chromely</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\src_5.0\Chromely.Core\Chromely.Core.csproj">
+      <Project>{BA312FA1-1043-4833-8CD8-01772C5C1DE0}</Project>
+      <Name>Chromely.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\src_5.0\Chromely\Chromely.csproj">
+      <Project>{3E383EA8-FE2D-4921-BDBD-EF712281758F}</Project>
+      <Name>Chromely</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\src_5.0\Chromely.CefGlue\Chromely.CefGlue.csproj">
+      <Project>{9202F378-FD76-4826-9F0E-0D654ECAD9F7}</Project>
+      <Name>Chromely.CefGlue</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
+  <Target Name="CopyCefComponentsToAppOutputDir" AfterTargets="Build">
+    <ItemGroup>
+      <MacCurrent Include="$(ProjectDir)packages/chromely.cef.83/**/*" />
+    </ItemGroup>
+    <ItemGroup>
+      <MacCurrentRes Include="$(ProjectDir)packages/chromely.cef.83/Chromium Embedded Framework.framework/Resources/**/*.*" />
+    </ItemGroup>
+    <ItemGroup>
+      <MacCurrentLib Include="$(ProjectDir)packages/chromely.cef.83/Chromium Embedded Framework.framework/Libraries/**/*.*" />
+    </ItemGroup>
+    <Unzip SourceFiles="$(ProjectDir)packages/chromely.cef.83/libcef.zip" DestinationFolder="$(TargetDir)/$(TargetName).app/Contents/MonoBundle/" OverwriteReadOnlyFiles="true" />
+    <Copy SourceFiles="@(MacCurrent)" DestinationFiles="@(MacCurrent-&gt;'$(TargetDir)$(TargetName).app/Contents/Frameworks/%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <Delete Files="$(TargetDir)/$(TargetName).app/Contents/Frameworks/Chromium Embedded Framework.framework/libcef.zip" />
+    <Copy SourceFiles="@(MacCurrent)" DestinationFolder="$(TargetDir)$(TargetName).app/Contents/MonoBundle/" SkipUnchangedFiles="true" />
+    <Delete Files="$(TargetDir)$(TargetName).app/Contents/MonoBundle/libcef.zip" />
+    <Copy SourceFiles="@(MacCurrentRes)" DestinationFolder="$(TargetDir)/$(TargetName).app/Contents/MonoBundle/" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(MacCurrentLib)" DestinationFolder="$(TargetDir)/$(TargetName).app/Contents/MonoBundle/" SkipUnchangedFiles="true" />
+  </Target>
+</Project>

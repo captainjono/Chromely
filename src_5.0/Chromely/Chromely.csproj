@@ -8,7 +8,7 @@
     <FileVersion>5.0.83.0</FileVersion>
     <Version>5.0.83.0</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Product>Chromely</Product>
     <Authors>Chromely Projects</Authors>
     <Company>Chromely Projects</Company>
@@ -85,7 +85,6 @@
   </ItemGroup>
   
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="cp $(TargetDir)Chromely*.dll $(ProjectDir)../../../windows/packages/Chromely
-        cp $(TargetDir)Chromely*.pdb $(ProjectDir)../../../windows/packages/Chromely" />
+    <Exec Command="copy $(TargetDir)Chromely*.dll $(ProjectDir)..\..\..\windows\packages\Chromely&#xD;&#xA;copy $(TargetDir)Chromely*.pdb $(ProjectDir)..\..\..\windows\packages\Chromely" />
   </Target>
 </Project>
