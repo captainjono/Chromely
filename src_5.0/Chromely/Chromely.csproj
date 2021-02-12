@@ -82,9 +82,6 @@
 
   <ItemGroup>
     <None Include="chromely.ico" Pack="true" Visible="false" PackagePath="" />
-  </ItemGroup>
+  </ItemGroup> 
   
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy $(TargetDir)Chromely*.dll $(ProjectDir)..\..\..\windows\packages\Chromely&#xD;&#xA;copy $(TargetDir)Chromely*.pdb $(ProjectDir)..\..\..\windows\packages\Chromely" />
-  </Target>
 </Project>

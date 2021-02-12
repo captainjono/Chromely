@@ -273,7 +273,7 @@ namespace Chromely.CefGlue.BrowserWindow
                 {
                     Process.Start("xdg-open", htmlFileName);
                 }
-                else if (CefRuntime.Platform == CefRuntimePlatform.MacOSX)
+                else if (CefRuntime.Platform == CefRuntimePlatform.MacOS)
                 {
                     Process.Start("open", htmlFileName);
                 }

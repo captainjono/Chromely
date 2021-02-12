@@ -26,19 +26,6 @@ namespace Chromely.XamMac
     {
         static void Main(string[] args)
         {
-            var ended = false;
-            new Thread(() =>
-            {
-                while (true)
-                {
-                    if (ended)
-                        break;
-                    
-                    Thread.Sleep(200);
-                    GC.Collect(2);
-                }
-            }).Start();
-
             var config = new DemoAppCfg()
             {
                 DebuggingMode = true,
@@ -73,22 +60,8 @@ namespace Chromely.XamMac
                 CommandLineOptions = new List<string>(new[] { "disable-web-security"})
             };
     
-
-                
-
-            //hack to properly shut down macos, will be removed in future versions
-            CefGlueLifeSpanHandler._doClose = _ =>
-            {
-                //looks like terminating the application sends the right messages.
-                CefRuntime.PostTask(CefThreadId.UI, new HostBase.ActionTask(() =>
-                {
-                    "Calling CefRuntime.QuitMessageLoop()".LogDebug();
-                    CefRuntime.QuitMessageLoop();
-                }), 500);
-
-            };
-
-            Chromely.Windows.Window._onCreated = cWindow =>
+            //gets a handle to the native window
+            Chromely.Windows.Window.OnNativeWindowCreated = cWindow =>
             {
                 CefRuntime.PostTask(CefThreadId.UI, new HostBase.ActionTask(() =>
                 {
@@ -96,22 +69,30 @@ namespace Chromely.XamMac
                     NSApplication.Init();
                     var mainWin = ObjCRuntime.Runtime.GetNSObject<NSWindow>(cWindow.HostHandle, false);
                     //^^^^ profit$$
-                    
-                    //you can postwork with NSRunloop also
-                    CefRuntime.PostTask(CefThreadId.UI, new HostBase.ActionTask(() =>
-                    {
-                        try
-                        {
-                            "Disposing of Chromely Window".LogDebug();
-                            cWindow.Dispose();
 
-                            //CefRuntime.QuitMessageLoop() trigger in doClose() ^
-                        }
-                        catch (Exception e)
+                    "Going into fullscreen automatically, will revert in 10sconds".LogDebug();
+                    mainWin.ToggleFullScreen(NSApplication.SharedApplication);
+                    
+                    //lets use the xam mac scheduler this time 
+                    DispatchQueue.MainQueue.DispatchAfter(new DispatchTime(DispatchTime.Now, TimeSpan.FromSeconds(10)),() =>
+                    {
+                        mainWin.ToggleFullScreen(NSApplication.SharedApplication);
+
+                        "Shutting down in 5".LogDebug();
+                        //trigger shutdown
+                        CefRuntime.PostTask(CefThreadId.UI, new HostBase.ActionTask(() =>
                         {
-                            "While running".LogError(e);
-                        }
-                    }), 1000 * 5);
+                            try
+                            {
+                                "Disposing of Chromely Window to cleanly shutdown app on macos".LogDebug();
+                                cWindow.Dispose();
+                            }
+                            catch (Exception e)
+                            {
+                                "While running".LogError(e);
+                            }
+                        }), 1000 * 5);
+                    });
                 }));
             };
 
@@ -125,8 +106,7 @@ namespace Chromely.XamMac
                 .UseLogger<DebugLogger>()
                 .Build()
                 .Run(args);
-
-            ended = true;
+            
             "Exiting gracefully".LogDebug();
         }
 

@@ -10,6 +10,7 @@
 using System;
 using System.Diagnostics;
 using Chromely.CefGlue.Browser.EventParams;
+using Chromely.CefGlue.BrowserWindow;
 using Chromely.Core.Configuration;
 using Chromely.Core.Infrastructure;
 using Chromely.Core.Network;
@@ -25,9 +26,6 @@ namespace Chromely.CefGlue.Browser.Handlers
         protected readonly IChromelyConfiguration _config;
         protected readonly IChromelyCommandTaskRunner _commandTaskRunner;
         protected CefGlueBrowser _browser;
-
-        //todo: fix hack
-        public static Action<CefBrowser> _doClose;
 
         public CefGlueLifeSpanHandler(IChromelyConfiguration config, IChromelyCommandTaskRunner commandTaskRunner, CefGlueBrowser browser)
         {
@@ -55,7 +53,11 @@ namespace Chromely.CefGlue.Browser.Handlers
 
         protected override bool DoClose(CefBrowser browser)
         {
-            _doClose?.Invoke(browser);
+            CefRuntime.PostTask(CefThreadId.UI, new HostBase.ActionTask(() =>
+            {
+                "Shutting down DemoApp".LogDebug();
+                CefRuntime.QuitMessageLoop();
+            }), 500); //give cef enough time to catch up 
             
             this.Dispose(true); // <-- so i added this code to forefully destroy it even though
                                 //this is probably notentirely correct - the doco says after this function returns

@@ -25,7 +25,7 @@ namespace Chromely.Windows
         private IChromelyFramelessController _framelessController;
         private IntPtr _browserWindowHandle;
         private bool _isFramelessControllerInitialized = false;
-        public static Action<IWindow> _onCreated;
+        public static Action<IWindow> OnNativeWindowCreated;
 
         public Window(IChromelyNativeHost nativeHost, IChromelyContainer container, IChromelyConfiguration config, IChromelyCommandTaskRunner commandTaskRunner, CefMessageRouterBrowserSide browserMessageRouter)
             : base(nativeHost, config)
@@ -160,7 +160,7 @@ namespace Chromely.Windows
             }
             
             "Created browser window. calling plugin".LogDebug();
-            _onCreated?.Invoke(this);
+            OnNativeWindowCreated?.Invoke(this);
         }
 
         private void OnFrameLoadStart(object sender, EventArgs e)

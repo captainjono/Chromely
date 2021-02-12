@@ -1,21 +1,24 @@
 <!-- Chromely.props 
-This is a post build cef binaries download for Chromely
-If this is not successful, developers can try running this on cmd, using help to get the options:
-
-For help:
-chromely_win_cef_downloader.exe download -h 
+This copies the props from the packages dir to the output folder
 -->
 
 <Project>
- 
-   <PropertyGroup>
-     <DownloadCefBinariesExe>"$(MSBuildThisFileDirectory)\chromely_win_cef_downloader.exe"</DownloadCefBinariesExe>
-     <ChromiumVersionParameter>v83</ChromiumVersionParameter>
-    </PropertyGroup>
-
-    <Target Condition=" '$(OS)' == 'Windows_NT' " Name="DownloadCefBinaries" AfterTargets="CoreCompile">
-      <Message Condition=" '$(OS)' == 'Windows_NT' " Text="$(DownloadCefBinariesExe) download $(ChromiumVersionParameter) --cpu=$(Platform) --dest=&quot;$(MSBuildProjectDirectory)\$(OutputPath)&quot;"  Importance="high" />
-      <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="$(DownloadCefBinariesExe) download $(ChromiumVersionParameter) --cpu=$(Platform) --dest=&quot;$(MSBuildProjectDirectory)\$(OutputPath)&quot;" ContinueOnError="WarnAndContinue"/>
+    <Target Name="CopyCefComponentsToAppOutputDir" AfterTargets="Build">
+        <ItemGroup>
+            <MacCurrent Include="$(ProjectDir)packages/Chromely.CEF.v86.0.21/**/*" />
+        </ItemGroup>
+        <ItemGroup>
+            <MacCurrentRes Include="$(ProjectDir)packages/Chromely.CEF.v86.0.21/Chromium Embedded Framework.framework/Resources/**/*.*" />
+        </ItemGroup>
+        <ItemGroup>
+            <MacCurrentLib Include="$(ProjectDir)packages/Chromely.CEF.v86.0.21/Chromium Embedded Framework.framework/Libraries/**/*.*" />
+        </ItemGroup>
+        <Unzip SourceFiles="$(ProjectDir)packages/Chromely.CEF.v86.0.21/libcef.zip" DestinationFolder="$(TargetDir)/$(TargetName).app/Contents/MonoBundle/" OverwriteReadOnlyFiles="true" />
+        <Copy SourceFiles="@(MacCurrent)" DestinationFiles="@(MacCurrent-&gt;'$(TargetDir)$(TargetName).app/Contents/Frameworks/%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+        <Delete Files="$(TargetDir)/$(TargetName).app/Contents/Frameworks/Chromium Embedded Framework.framework/libcef.zip" />
+        <Copy SourceFiles="@(MacCurrent)" DestinationFolder="$(TargetDir)$(TargetName).app/Contents/MonoBundle/" SkipUnchangedFiles="true" />
+        <Delete Files="$(TargetDir)$(TargetName).app/Contents/MonoBundle/libcef.zip" />
+        <Copy SourceFiles="@(MacCurrentRes)" DestinationFolder="$(TargetDir)/$(TargetName).app/Contents/MonoBundle/" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(MacCurrentLib)" DestinationFolder="$(TargetDir)/$(TargetName).app/Contents/MonoBundle/" SkipUnchangedFiles="true" />
     </Target>
-
 </Project>
