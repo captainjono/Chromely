@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="CefGlueLifeSpanHandler.cs" company="Chromely Projects">
 //   Copyright (c) 2017-2019 Chromely Projects
 // </copyright>
@@ -7,6 +7,8 @@
 // </license>
 // ----------------------------------------------------------------------------------------------------------------------
 
+using System;
+using System.Diagnostics;
 using Chromely.CefGlue.Browser.EventParams;
 using Chromely.Core.Configuration;
 using Chromely.Core.Infrastructure;
@@ -24,6 +26,9 @@ namespace Chromely.CefGlue.Browser.Handlers
         protected readonly IChromelyCommandTaskRunner _commandTaskRunner;
         protected CefGlueBrowser _browser;
 
+        //todo: fix hack
+        public static Action<CefBrowser> _doClose;
+
         public CefGlueLifeSpanHandler(IChromelyConfiguration config, IChromelyCommandTaskRunner commandTaskRunner, CefGlueBrowser browser)
         {
             _config = config;
@@ -40,17 +45,28 @@ namespace Chromely.CefGlue.Browser.Handlers
         protected override void OnAfterCreated(CefBrowser browser)
         {
             base.OnAfterCreated(browser);
-            _browser.InvokeAsyncIfPossible(() => _browser.OnBrowserAfterCreated(browser));
+            _browser.InvokeAsyncIfPossible(() =>
+            {
+                "CefGlueLifeSpanHandler async AfterCreated".LogDebug();   
+
+                _browser.OnBrowserAfterCreated(browser);
+            });
         }
 
         protected override bool DoClose(CefBrowser browser)
         {
-            return false;
+            _doClose?.Invoke(browser);
+            
+            this.Dispose(true); // <-- so i added this code to forefully destroy it even though
+                                //this is probably notentirely correct - the doco says after this function returns
+                                // the window should be removed
+			
+            return true;
         }
 
         protected override void OnBeforeClose(CefBrowser browser)
         {
-            _browser.InvokeAsyncIfPossible(() => _browser.OnBeforeClose());
+            "CefGlueLifeSpanHandler OnBeforeClose!!! this is never called if you see this, UMM!! look at why!".LogDebug();
         }
 
         protected override bool OnBeforePopup(CefBrowser browser, CefFrame frame, string targetUrl, string targetFrameName, CefWindowOpenDisposition targetDisposition, bool userGesture, CefPopupFeatures popupFeatures, CefWindowInfo windowInfo, ref CefClient client, CefBrowserSettings settings, ref CefDictionaryValue extraInfo, ref bool noJavascriptAccess)

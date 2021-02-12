@@ -105,6 +105,35 @@ This [nuget package]() ***will*** provide
 * Supplies the *window handle* to your App so you can style it *using platform functions* if you wish
 * Implements the Chromely NativeHost `.MessageBox` dialogs to allow cross-platform message boxes via Chromelys APIs (using Xamarin / .Net MUAIs APIs)
 
+## But i have a problem!
+
+This repo *successfully(!!)* boostraps CEF with Chromely. It will show you a browser window and you can use Chromelys API as usual. You can also use Xamarin to style the Window that Chromely mediates with CEF.... 
+
+But *it will crash* when you try and *shut it down*. 
+
+I am actively working on this and another issue: 
+
+### Shutdown crash
+* [CEF has a very particular API for shutdown](https://magpcss.org/ceforum/apidocs3/projects/(default)/CefLifeSpanHandler.html), like it does for init.
+  * You must close the browser before exiting your App
+  * You must wait for the browser to go through its shutdown process and cleanup its resources
+    * This could take 100ms~ of its MessagePump do its thing
+    * You need then, only after all browser handles/resources have been released by your app, call `CefRunetime.Shutdown()`
+    * Then it is safe for you to Exit your app
+  
+My implementation so far does not comply and CEF crashes the App because it is holding a browser reference at shutdown
+
+<img src="cef_shutdown_error.png">
+
+Cloning and running via [VS Community]() + [Xamarin MacoS]() workload installed will demo the crashing issue as soon after you *click the cross to exit the app*.
+
+## Release mode crash
+
+CEF will fail to init when you switch compliation options to *Release mode*.
+* I think this may be related to Notorisation the app
+
+If anyone is able to help out diagnosing or debugging these issues, I would really appreciate the help. PRs welcome. 
+
 ## Parting words
 
 I hope the information I have presented helps you launch your CEF project. Cross-platform rocks, and I am actively working on updating another project of mine, [Reactions](https://github.com/captainjono/rxns) to be *plug / play* & dependency free with .NET5!

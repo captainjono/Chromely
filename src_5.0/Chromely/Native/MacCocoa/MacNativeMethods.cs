@@ -29,6 +29,7 @@ namespace Chromely.Native
             public IntPtr movingCallback;
             public IntPtr resizeCallback;
             public IntPtr exitCallback;
+            public IntPtr logCallback;
         }
 
         [DllImport(ChromelyMacLib, CallingConvention = CallingConvention.Cdecl)]

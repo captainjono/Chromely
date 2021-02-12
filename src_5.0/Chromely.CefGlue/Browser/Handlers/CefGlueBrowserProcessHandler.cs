@@ -8,6 +8,7 @@
 // ----------------------------------------------------------------------------------------------------------------------
 
 using System;
+    using System.Runtime.CompilerServices;
 using Chromely.Core.Configuration;
 using Xilium.CefGlue;
 
@@ -33,36 +34,53 @@ namespace Chromely.CefGlue.Browser.Handlers
         /// </param>
         protected override void OnBeforeChildProcessLaunch(CefCommandLine browser_cmd)
         {
-            // Disable security features
-            browser_cmd.AppendSwitch("default-encoding", "utf-8");
-            browser_cmd.AppendSwitch("allow-file-access-from-files");
-            browser_cmd.AppendSwitch("allow-universal-access-from-files");
-            browser_cmd.AppendSwitch("disable-web-security");
-            browser_cmd.AppendSwitch("ignore-certificate-errors");
-
-            browser_cmd.AppendSwitch("disable-gpu");
-
-            browser_cmd.AppendSwitch("disable-frame-rate-limit");
-            browser_cmd.AppendSwitch("disable-gpu-vsync");
-            browser_cmd.AppendSwitch("devtools-protocol-log-file", "cefdevtools.log");
-            browser_cmd.AppendSwitch("proxy-auto-detect");
-
-
-            if (!String.IsNullOrWhiteSpace(_config.SubProcessPath))
+            try
             {
-                if (!browser_cmd.HasSwitch("cefglue"))
-                {
-                    browser_cmd.SetProgram(_config.SubProcessPath);
+                // Disable security features
+                browser_cmd.AppendSwitch("default-encoding", "utf-8");
+                browser_cmd.AppendSwitch("allow-file-access-from-files");
+                browser_cmd.AppendSwitch("allow-universal-access-from-files");
+                browser_cmd.AppendSwitch("disable-web-security");
+                browser_cmd.AppendSwitch("ignore-certificate-errors");
 
-                    browser_cmd.AppendSwitch("cefglue", "w");
+         //       browser_cmd.AppendSwitch("disable-gpu");
+
+                browser_cmd.AppendSwitch("disable-frame-rate-limit");
+                browser_cmd.AppendSwitch("disable-gpu-vsync");
+                browser_cmd.AppendSwitch("devtools-protocol-log-file", "cefdevtools.log");
+                browser_cmd.AppendSwitch("proxy-auto-detect");
+
+
+                if (!String.IsNullOrWhiteSpace(_config.SubProcessPath))
+                {
+                    if (!browser_cmd.HasSwitch("cefglue"))
+                    {
+                        browser_cmd.SetProgram(_config.SubProcessPath);
+
+                        browser_cmd.AppendSwitch("cefglue", "w");
+                    }
+                }
+
+                if (_config.DebuggingMode)
+                {
+                    Console.WriteLine("On CefGlue child process launch arguments:");
+                    Console.WriteLine(browser_cmd.ToString());
                 }
             }
-
-            if (_config.DebuggingMode)
+            catch (Exception e)
             {
-                Console.WriteLine("On CefGlue child process launch arguments:");
-                Console.WriteLine(browser_cmd.ToString());
+                
             }
         }
+
+        protected override void OnScheduleMessagePumpWork(long delayMs)
+        {
+            OnShcuedlerWork.Invoke(delayMs);
+        }
+
+        public static Action<long> OnShcuedlerWork;
+
     }
+
+
 }

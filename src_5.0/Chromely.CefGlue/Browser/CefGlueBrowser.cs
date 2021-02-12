@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Reflection;
 using Chromely.CefGlue.Browser.EventParams;
 using Chromely.Core;
@@ -171,8 +172,8 @@ namespace Chromely.CefGlue.Browser
             CefBrowserHost.CreateBrowser(windowInfo, _client, _settings, StartUrl);
         }
 
-        #region Dispose
 
+        private static CefBrowserHost _host = null;
         /// <summary>
         /// The dispose.
         /// </summary>
@@ -180,24 +181,55 @@ namespace Chromely.CefGlue.Browser
         {
             unsafe
             {
+                "CefGlueBrowser entering dispose".LogDebug();
+
                 // due we don't want to change Xilium.CefGlue.CefBrowser
                 // we check the internal _self property to see
                 // if it is already destroyed
-                if (CefBrowser != null 
-                    && typeof(CefBrowser).GetField("_self", BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(CefBrowser) is Pointer self 
+                if (CefBrowser != null
+                    && typeof(CefBrowser).GetField("_self", BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(CefBrowser) is Pointer self
                     && Pointer.Unbox(self) != null)
                 {
+
+                    "About to call cef.CloseBrowser()".LogDebug();
+
+                    if(CefBrowser.IsLoading)
+                        CefBrowser.StopLoad();
+
                     var host = CefBrowser.GetHost();
                     host.CloseBrowser(true);
-                    host.Dispose();
+
+                    //https://magpcss.org/ceforum/viewtopic.php?f=14&t=17692
                     CefBrowser.Dispose();
-                    CefBrowser = null;
+
+                    "calling CefGlueBrowser OnBeforeClosed explicitly".LogDebug();
+
+                    BeforeClose?.Invoke(this, null);
+                }
+                else
+                {
+                    "CefGlueBrowser availible to close".LogDebug(); ;
                 }
             }
 
         }
 
-        #endregion
+
+        /// <summary>
+        /// The on before close.
+        /// </summary>
+        public void OnBeforeClose()
+        {
+            Debug.WriteLine("CefGlueBrowser OnBeforeClosed");
+
+           // CefBrowser.Dispose();
+          //  CefBrowser = null;
+
+          //  BeforeClose?.Invoke(this, null);
+           // Debug.WriteLine("CefBrowser disposed");
+        }
+
+
 
         #region Events Handling
 
@@ -283,14 +315,6 @@ namespace Chromely.CefGlue.Browser
         public void OnTooltip(TooltipEventArgs eventArgs)
         {
             TooltipChanged?.Invoke(this, eventArgs);
-        }
-
-        /// <summary>
-        /// The on before close.
-        /// </summary>
-        public void OnBeforeClose()
-        {
-            BeforeClose?.Invoke(this, null);
         }
 
         /// <summary>
