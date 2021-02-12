@@ -28,6 +28,32 @@
     <UseSGen>true</UseSGen>
     <UseRefCounting>true</UseRefCounting>
   </PropertyGroup>
+    <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{5958B4B8-821D-44CF-BAD0-F6D72457A126}</ProjectGuid>
+    <ProjectTypeGuids>{A3F8F2AB-B479-4A4A-A458-A89E7DC349F1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Chromely.XamMac</RootNamespace>
+    <AssemblyName>Chromely.XamMac</AssemblyName>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkIdentifier>Xamarin.Mac</TargetFrameworkIdentifier>
+    <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
+    <PackOnBuild>true</PackOnBuild>
+    <PackageId>Chromely.XamMac</PackageId>
+    <PackageVersion>86.0.21</PackageVersion>
+    <Authors>Jonathan Captanis</Authors>
+    <Copyright>MIT</Copyright>
+    <Owners>Chromely Projects</Owners>
+    <PackageProjectUrl>https://github.com/captainjono/chromely</PackageProjectUrl>
+    <PackageReleaseNotes>Update to  CEF v86.0.21</PackageReleaseNotes>
+    <Summary>Use CEF with Xamarin.macOS to build HTML5 Apps for a vareity of purposes</Summary>
+    <PackageTags>CEF Chrome Chromely browser web browser</PackageTags>
+    <Title>Chromely.XamMac</Title>
+    <Description>This is a Xamarin Mac port of the Chromely CEFGlue integration. It includes the CEF distrubution that will be copied to your output directory on build for plug&amp;play operation.
+
+I plan on maintaining this fork in alignment with the Chromely Authors and eventually merge this back to master. Until then, enjoy!</Description>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>

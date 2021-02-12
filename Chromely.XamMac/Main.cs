@@ -2,14 +2,23 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
+using AppKit;
 using Caliburn.Light;
+using Chromely.CefGlue.Browser.Handlers;
+using Chromely.CefGlue.BrowserWindow;
 using Chromely.Core;
 using Chromely.Core.Configuration;
 using Chromely.Core.Host;
 using Chromely.Core.Infrastructure;
 using Chromely.Core.Logging;
 using Chromely.Core.Network;
+using Chromely.Native;
 using Chromely.Windows;
+using CoreFoundation;
+using Foundation;
+using Xilium.CefGlue;
 
 namespace Chromely.XamMac
 {
@@ -17,6 +26,19 @@ namespace Chromely.XamMac
     {
         static void Main(string[] args)
         {
+            var ended = false;
+            new Thread(() =>
+            {
+                while (true)
+                {
+                    if (ended)
+                        break;
+                    
+                    Thread.Sleep(200);
+                    GC.Collect(2);
+                }
+            }).Start();
+
             var config = new DemoAppCfg()
             {
                 DebuggingMode = true,
@@ -45,19 +67,56 @@ namespace Chromely.XamMac
                 CommandLineArgs = new Dictionary<string, string>()
                 {
                     ["cefLogFile"] = "chromely.cef.log",
-                    ["logSeverity"] = "verbose"
+                    ["logSeverity"] = "verbose",
+                    //["external-message-pump"] = true.ToString()
                 },
-                CommandLineOptions = new List<string>(new[] { "disable-web-security" })
+                CommandLineOptions = new List<string>(new[] { "disable-web-security"})
+            };
+    
+
+                
+
+            //hack to properly shut down macos, will be removed in future versions
+            CefGlueLifeSpanHandler._doClose = _ =>
+            {
+                //looks like terminating the application sends the right messages.
+                CefRuntime.PostTask(CefThreadId.UI, new HostBase.ActionTask(() =>
+                {
+                    "Calling CefRuntime.QuitMessageLoop()".LogDebug();
+                    CefRuntime.QuitMessageLoop();
+                }), 500);
+
             };
 
             Chromely.Windows.Window._onCreated = cWindow =>
             {
-                //the window handle
-                //var xamMacWindow = FromNativeHandle(cWindow.HostHandle);
+                CefRuntime.PostTask(CefThreadId.UI, new HostBase.ActionTask(() =>
+                {
+                    "Init xam app".LogDebug();
+                    NSApplication.Init();
+                    var mainWin = ObjCRuntime.Runtime.GetNSObject<NSWindow>(cWindow.HostHandle, false);
+                    //^^^^ profit$$
+                    
+                    //you can postwork with NSRunloop also
+                    CefRuntime.PostTask(CefThreadId.UI, new HostBase.ActionTask(() =>
+                    {
+                        try
+                        {
+                            "Disposing of Chromely Window".LogDebug();
+                            cWindow.Dispose();
+
+                            //CefRuntime.QuitMessageLoop() trigger in doClose() ^
+                        }
+                        catch (Exception e)
+                        {
+                            "While running".LogError(e);
+                        }
+                    }), 1000 * 5);
+                }));
             };
 
             var chromelyContainer = new SimpleContainer();
-            chromelyContainer.RegisterByTypeSingleton(typeof(IChromelyWindow), typeof(DemoWindow));
+            chromelyContainer.RegisterByTypeSingleton(typeof(IChromelyWindow),  typeof(DemoWindow));
 
             AppBuilder.Create()
                 .UseApp<DemoApp>()
@@ -66,24 +125,9 @@ namespace Chromely.XamMac
                 .UseLogger<DebugLogger>()
                 .Build()
                 .Run(args);
-        }
 
-        public NSWindow FromNativeHandle(IWindow nativeHost)
-        {
-            Debug.WriteLine("Attempting to lookup Chromly native window");
-
-            var nativeHandle = nativeHost.HostHandle;
-            var mainWin = _mainWindow = ObjCRuntime.Runtime.GetNSObject<NSWindow>(nativeHandle, false);
-
-            $"Found Chromely Native Window @ {nativeHandle}".LogDebug("Replay");
-
-            //CefRuntime.PostTask( 
-            MainWindow.TitlebarAppearsTransparent = true;
-
-                
-            
-
-            return mainWin;
+            ended = true;
+            "Exiting gracefully".LogDebug();
         }
 
 
@@ -96,8 +140,11 @@ namespace Chromely.XamMac
 
             public override IChromelyWindow CreateWindow()
             {
-                Debug.WriteLine("CreateWindow DemoApp");
-                return (IChromelyWindow)Container.GetInstance(typeof(IChromelyWindow), typeof(IChromelyWindow).Name);
+                "CreateWindow DemoApp".LogDebug();
+                var win = (IChromelyWindow)Container.GetInstance(typeof(IChromelyWindow), typeof(IChromelyWindow).Name);
+                
+               // "CreateWindow returned".LogDebug();
+                return win;
             }
         }
 
@@ -135,55 +182,57 @@ namespace Chromely.XamMac
         {
             public void WriteDebug(string state, string msg)
             {
-                System.Diagnostics.Debug.WriteLine($"[{state}] {msg}");
+                msg.LogDebug();
             }
 
             public void Info(string message)
             {
-                WriteDebug("Info", message);
+                message.LogInfo();
             }
 
             public void Verbose(string message)
             {
-                WriteDebug("Info", message);
+                message.LogDebug();
+
             }
 
             public void Debug(string message)
             {
-                WriteDebug("Info", message);
+                message.LogDebug();
+
             }
 
             public void Warn(string message)
             {
-                WriteDebug("Warn", message);
+                message.LogDebug();
             }
 
             public void Critial(string message)
             {
-                WriteDebug("Error", message);
+                message.LogError();
             }
 
             public void Fatal(string message)
             {
-                WriteDebug("Error", message);
+                message.LogError();
+
             }
 
             public void Error(string message)
             {
-                WriteDebug("Error", message);
+                message.LogError();
 
             }
 
             public void Error(Exception exception)
             {
-                WriteDebug("Error", exception.ToString());
+                "Error".LogError(exception);
 
             }
 
             public void Error(Exception exception, string message)
             {
-                WriteDebug("Error", message);
-
+                message.LogError(exception);
             }
         }
     }
