@@ -404,4 +404,4 @@ ASALocalRun/
 # Local History for Visual Studio
 .localhistory/
 
-!packages/chromely.cef.83
+!packages/chromely.cef.v*
