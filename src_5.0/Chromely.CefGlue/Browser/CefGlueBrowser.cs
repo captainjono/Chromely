@@ -191,7 +191,7 @@ namespace Chromely.CefGlue.Browser
                     && Pointer.Unbox(self) != null)
                 {
 
-                    "About to call cef.CloseBrowser()".LogDebug();
+                    "About to call host.CloseBrowser()".LogDebug();
 
                     if(CefBrowser.IsLoading)
                         CefBrowser.StopLoad();
@@ -201,9 +201,6 @@ namespace Chromely.CefGlue.Browser
 
                     //https://magpcss.org/ceforum/viewtopic.php?f=14&t=17692
                     CefBrowser.Dispose();
-
-                    "calling CefGlueBrowser OnBeforeClosed explicitly".LogDebug();
-
                     BeforeClose?.Invoke(this, null);
                 }
                 else
@@ -212,21 +209,6 @@ namespace Chromely.CefGlue.Browser
                 }
             }
 
-        }
-
-
-        /// <summary>
-        /// The on before close.
-        /// </summary>
-        public void OnBeforeClose()
-        {
-            Debug.WriteLine("CefGlueBrowser OnBeforeClosed");
-
-           // CefBrowser.Dispose();
-          //  CefBrowser = null;
-
-          //  BeforeClose?.Invoke(this, null);
-           // Debug.WriteLine("CefBrowser disposed");
         }
 
 

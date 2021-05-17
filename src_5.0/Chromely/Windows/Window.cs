@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Threading;
 using Chromely.CefGlue.Browser;
 using Chromely.CefGlue.Browser.EventParams;
 using Chromely.CefGlue.BrowserWindow;
@@ -72,27 +70,14 @@ namespace Chromely.Windows
         {
             try
             {
-                if (_browserWindowHandle != IntPtr.Zero)
+                if (Browser != null)
                 {
-                    "Telling browser to close".LogDebug();
-                    
-                    //https://github.com/cefsharp/cefsharp/issues/3047
-                    //recent CEfSharp issue which tackles the same problem
-
                     // A hack - until fix is found for why OnBeforeClose is not called in CefGlueLifeHandler.cs
                     //Browser?.OnBeforeClose();
 
                     Browser?.Dispose();
-                    
-                    "Removed browser=null which stopped , but added back sleep and clearing of window handle".LogDebug();
-                    TimeSpan.FromSeconds(0.5).SpinFor();
-                    //Browser = null;
+                    Browser = null;
                     _browserWindowHandle = IntPtr.Zero;
-                    //Exit();
-                }
-                else
-                {
-                    "Dispose already called on window!".LogDebug();
                 }
             }
             catch (Exception exception)
@@ -138,18 +123,10 @@ namespace Chromely.Windows
 
         protected override void OnClose(object sender, CloseEventArgs closeChangedEventArgs)
         {
-            //"Window Onclose called, not Disposing of window as its alredy been done".LogDebug();
-            "Not releasing resources in onclosed".LogDebug();
-          //  Browser = null;
-
-          //  Handle = IntPtr.Zero;
-           // WinXID = IntPtr.Zero;
-            //Dispose();
-           // Core.Infrastructure.ChromelyAppUser.App.Properties.Save(_config);
-
-            //_onClose?.Invoke();
+            Dispose();
+            Core.Infrastructure.ChromelyAppUser.App.Properties.Save(_config);
         }
-        public static Action _onClose;
+
         private void OnBrowserCreated(object sender, EventArgs e)
         {
             _browserWindowHandle = Browser.CefBrowser.GetHost().GetWindowHandle();
@@ -158,7 +135,7 @@ namespace Chromely.Windows
 
                 ResizeBrowser(_browserWindowHandle);
             }
-            
+
             "Created browser window. calling plugin".LogDebug();
             OnNativeWindowCreated?.Invoke(this);
         }

@@ -53,22 +53,29 @@ namespace Chromely.CefGlue.Browser.Handlers
 
         protected override bool DoClose(CefBrowser browser)
         {
-            CefRuntime.PostTask(CefThreadId.UI, new HostBase.ActionTask(() =>
+            if (CefRuntime.Platform == CefRuntimePlatform.MacOS)
             {
-                "Shutting down DemoApp".LogDebug();
-                CefRuntime.QuitMessageLoop();
-            }), 500); //give cef enough time to catch up 
-            
-            this.Dispose(true); // <-- so i added this code to forefully destroy it even though
-                                //this is probably notentirely correct - the doco says after this function returns
-                                // the window should be removed
-			
-            return true;
+                "Mac shutdown detcted, quitmessageloop called in 500ms".LogDebug();
+                CefRuntime.PostTask(CefThreadId.UI, new HostBase.ActionTask(() =>
+                {
+                    CefRuntime.QuitMessageLoop();
+                }), 500); //give cef enough time to catch up 
+
+                this.Dispose(true); // <-- so i added this code to forefully destroy it even though
+                //this is probably notentirely correct - the doco says after this function returns
+                // the window should be removed
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         protected override void OnBeforeClose(CefBrowser browser)
         {
-            "CefGlueLifeSpanHandler OnBeforeClose!!! this is never called if you see this, UMM!! look at why!".LogDebug();
+            "CefGlueLifeSpanHandler OnBeforeClose".LogDebug();
         }
 
         protected override bool OnBeforePopup(CefBrowser browser, CefFrame frame, string targetUrl, string targetFrameName, CefWindowOpenDisposition targetDisposition, bool userGesture, CefPopupFeatures popupFeatures, CefWindowInfo windowInfo, ref CefClient client, CefBrowserSettings settings, ref CefDictionaryValue extraInfo, ref bool noJavascriptAccess)
